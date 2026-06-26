@@ -13,6 +13,8 @@
       --ritual-gold: #FFD700; --ritual-amber: #FF8C42;
       --mind-purple: #A78BFA; --body-green: #6BE3A4; --identity-amber: #F2C063;
       --output-blue: #5B8DEF; --presence-gold: #FF8C42;
+      --accent: #C8F544; --surface: rgba(255,255,255,0.03); --border: rgba(255,255,255,0.08);
+      --muted: #76746E; --warm: #FF8C42; --cool: #4ECDC4;
     }
     * { box-sizing: border-box; }
     body {
@@ -120,6 +122,7 @@
     .view-section { display: none; width: 100%; opacity: 0; transform: scale(0.98); transition: opacity 0.4s ease, transform 0.4s ease; }
     .view-section.active { display: block; animation: zoomIn 0.4s ease forwards; }
     @keyframes zoomIn { from { opacity: 0; transform: scale(0.98) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
     .glass-card {
       background: rgba(255, 255, 255, 0.04); border-radius: 16px; padding: 22px;
@@ -243,6 +246,13 @@
       text-transform: uppercase; cursor: pointer; transition: all 0.3s; margin-top: 24px;
     }
     .btn-ritual:hover { background: rgba(255,255,255,0.15); }
+    .btn-ritual.pulse {
+      animation: button-pulse 1s infinite alternate;
+    }
+    @keyframes button-pulse {
+      0% { transform: scale(1); box-shadow: 0 0 0 rgba(255,255,255,0); }
+      100% { transform: scale(1.05); box-shadow: 0 0 15px rgba(255,215,0,0.3); }
+    }
     
     .affirmation { font-size: 18px; line-height: 1.5; font-weight: 500; letter-spacing: 0.02em; color: var(--text-secondary); margin-bottom: 24px; opacity: 0; transform: translateY(10px); transition: all 1s ease; }
     .affirmation.visible { opacity: 1; transform: translateY(0); color: var(--text-primary); }
@@ -259,10 +269,27 @@
     }
     .commit-input:focus { border-color: var(--ritual-gold); }
     
+    .phase-steps { display: flex; justify-content: center; align-items: center; gap: 0; margin-bottom: 28px; width: 100%; }
+    .phase-step {
+      font-size: 9px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--text-tertiary); padding: 4px 8px; border-radius: 4px; transition: all 0.4s;
+    }
+    .phase-step.active { color: var(--ritual-gold); text-shadow: 0 0 8px rgba(255,215,0,0.4); }
+    .phase-step.done { color: var(--success); }
+    .phase-connector { width: 16px; height: 1px; background: rgba(255,255,255,0.1); flex-shrink: 0; }
+
     .silent-ring {
       width: 168px; height: 168px; border-radius: 50%; border: 1px solid rgba(255,215,0,0.3); margin: 60px auto;
-      animation: silent-breath 14s infinite ease-in-out;
+      animation: silent-breath 14s infinite ease-in-out; cursor: pointer; position: relative; transition: box-shadow 0.5s;
     }
+    .silent-ring:hover { box-shadow: 0 0 40px rgba(255,215,0,0.2); border-color: rgba(255,215,0,0.6); }
+    .silent-ring-hint {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      font-size: 10px; font-weight: 700; letter-spacing: 0.1em; color: var(--text-tertiary);
+      text-transform: uppercase; pointer-events: none; opacity: 0; transition: opacity 1s;
+    }
+    .silent-ring.hint-visible .silent-ring-hint { opacity: 1; }
+    .silent-ring.clicked { border-color: var(--ritual-gold); box-shadow: 0 0 60px rgba(255,215,0,0.3); animation: none; transform: scale(1); }
     @keyframes silent-breath {
       0%, 100% { transform: scale(1); opacity: 0.3; }
       30% { transform: scale(1.15); opacity: 0.8; } /* Inhale */
@@ -289,7 +316,296 @@
       .add-row .input-field { min-width: 100%; }
       .add-row .btn { width: 100%; }
       .urgency-banner { font-size: 9.5px; padding: 12px; }
+      .repro-nav { gap: 0; }
+      .repro-tab { font-size: 9px; padding: 6px 10px; }
+      .phase-stepper { gap: 0; }
+      .phase-dot { width: 28px; height: 28px; font-size: 9px; }
+      .phase-line { width: 12px; }
     }
+
+      /* ─── REPROGRAM MODE ─── */
+    .repro-nav {
+      display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none;
+      margin-bottom: 20px; padding-bottom: 4px; justify-content: center;
+    }
+    .repro-nav::-webkit-scrollbar { display: none; }
+    .repro-tab {
+      font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.12em;
+      text-transform: uppercase; padding: 8px 14px; cursor: pointer; border-radius: 6px;
+      border: 1px solid transparent; color: var(--muted); background: transparent;
+      white-space: nowrap; transition: all 0.2s; flex-shrink: 0;
+    }
+    .repro-tab:hover { color: var(--text-primary); border-color: rgba(255,255,255,0.1); }
+    .repro-tab.active {
+      color: var(--accent); background: rgba(200,245,68,0.08);
+      border-color: rgba(200,245,68,0.2); box-shadow: 0 0 12px rgba(200,245,68,0.06);
+    }
+    .repro-panel { display: none; animation: fadeIn 0.3s ease; }
+    .repro-panel.active { display: block; }
+
+    /* Phase Stepper */
+    .phase-stepper {
+      display: flex; align-items: center; justify-content: center;
+      margin: 8px auto 28px; gap: 0;
+    }
+    .phase-step-wrap {
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+    .phase-dot {
+      width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center;
+      justify-content: center; font-family: 'DM Mono', monospace; font-size: 12px;
+      font-weight: 700; transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+      border: 2px solid var(--border); color: var(--muted);
+      background: rgba(255,255,255,0.03); position: relative;
+    }
+    .phase-dot.done { border-color: var(--accent); background: var(--accent); color: #050506; box-shadow: 0 0 16px rgba(200,245,68,0.3); }
+    .phase-dot.active {
+      border-color: var(--accent); color: var(--accent);
+      box-shadow: 0 0 20px rgba(200,245,68,0.2);
+      animation: phasePulse 2.5s ease-in-out infinite;
+    }
+    .phase-dot.future { opacity: 0.4; }
+    @keyframes phasePulse {
+      0%, 100% { box-shadow: 0 0 12px rgba(200,245,68,0.12); transform: scale(1); }
+      50% { box-shadow: 0 0 28px rgba(200,245,68,0.3); transform: scale(1.06); }
+    }
+    .phase-label {
+      font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--muted); white-space: nowrap;
+      transition: color 0.3s; text-align: center; max-width: 70px; line-height: 1.3;
+    }
+    .phase-dot.active + .phase-label { color: var(--accent); }
+    .phase-dot.done + .phase-label { color: var(--text-secondary); }
+    .phase-line {
+      width: 24px; height: 2px; background: var(--border); flex-shrink: 0;
+      transition: background 0.4s; margin-bottom: 28px;
+    }
+    .phase-line.done { background: var(--accent); }
+
+    /* Phase Detail */
+    .phase-detail-card {
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      border-radius: 12px; overflow: hidden; animation: fadeIn 0.4s ease;
+    }
+    .pd-header {
+      padding: 20px 24px; border-bottom: 1px solid var(--border);
+      background: rgba(200,245,68,0.03);
+    }
+    .pd-badge {
+      display: inline-block; font-family: 'DM Mono', monospace; font-size: 10px;
+      letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent);
+      background: rgba(200,245,68,0.1); padding: 3px 10px; border-radius: 4px;
+      margin-bottom: 10px;
+    }
+    .pd-name { font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+    .pd-duration { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); }
+    .pd-body { padding: 20px 24px; }
+    .pd-section { margin-bottom: 20px; }
+    .pd-section:last-child { margin-bottom: 0; }
+    .pd-section-title {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
+    }
+    .pd-section-title::before {
+      content: ''; width: 14px; height: 1.5px; background: var(--accent); flex-shrink: 0;
+    }
+    .pd-text { font-size: 13px; color: var(--text-secondary); line-height: 1.7; }
+    .pd-principle {
+      background: rgba(200,245,68,0.06); border-left: 3px solid var(--accent);
+      border-radius: 0 8px 8px 0; padding: 14px 18px; margin-bottom: 20px;
+    }
+    .pd-principle-text {
+      font-size: 14px; font-weight: 500; color: var(--accent); line-height: 1.5;
+      font-style: italic;
+    }
+    .pd-principle-label {
+      font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 6px;
+    }
+    .pd-instruction {
+      display: flex; gap: 10px; padding: 7px 0; font-size: 13px;
+      color: var(--text-secondary); border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .pd-instruction:last-child { border-bottom: none; }
+    .pd-bullet {
+      color: var(--accent); font-family: 'DM Mono', monospace; font-size: 10px;
+      min-width: 20px; padding-top: 2px;
+    }
+
+    /* Milestone checklist */
+    .milestone-wrap { display: flex; flex-direction: column; gap: 0; }
+    .milestone-row {
+      display: flex; align-items: center; gap: 10px; padding: 8px 0;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .milestone-row:hover { padding-left: 4px; }
+    .m-check {
+      width: 20px; height: 20px; border-radius: 5px; border: 1.5px solid var(--border);
+      background: rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: all 0.25s; font-size: 10px; color: transparent;
+      position: relative;
+    }
+    .milestone-row.done .m-check { background: var(--accent); border-color: var(--accent); color: #050506; box-shadow: 0 0 8px rgba(200,245,68,0.3); }
+    .m-text { font-size: 13px; color: var(--text-secondary); transition: color 0.25s; line-height: 1.4; }
+    .milestone-row.done .m-text { color: rgba(255,255,255,0.3); text-decoration: line-through; }
+
+    .pd-progress-foot {
+      margin-top: 16px; padding: 12px 16px; background: rgba(255,255,255,0.02);
+      border-radius: 8px; display: flex; align-items: center; gap: 10px;
+      font-size: 11px; color: var(--muted); line-height: 1.5;
+    }
+    .pd-foot-icon { font-size: 16px; flex-shrink: 0; }
+
+    .pd-complete-banner {
+      margin-top: 16px; padding: 12px 16px;
+      background: rgba(200,245,68,0.08); border: 1px solid rgba(200,245,68,0.15);
+      border-radius: 8px; text-align: center; font-size: 13px; color: var(--accent);
+      font-weight: 600; animation: fadeIn 0.4s ease;
+    }
+
+    /* Daily practices ring */
+    .dp-ring-wrap {
+      display: flex; align-items: center; gap: 20px; margin-bottom: 20px;
+    }
+    .dp-ring {
+      width: 64px; height: 64px; border-radius: 50%; position: relative; flex-shrink: 0;
+    }
+    .dp-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+    .dp-ring-track { fill: none; stroke: rgba(255,255,255,0.06); stroke-width: 6; }
+    .dp-ring-fill { fill: none; stroke: var(--accent); stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset 0.5s; }
+    .dp-ring-text {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      font-family: 'DM Mono', monospace; font-size: 14px; font-weight: 700;
+    }
+    .dp-info { flex: 1; }
+    .dp-info-label { font-size: 12px; font-weight: 600; color: #fff; }
+    .dp-info-sub { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+    /* Subconscious cards */
+    .sub-card {
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 10px;
+      overflow: hidden; margin-bottom: 12px; backdrop-filter: blur(12px);
+    }
+    .sub-card-header {
+      padding: 14px 18px; display: flex; align-items: center; gap: 12px; cursor: pointer;
+      user-select: none; transition: background 0.15s;
+    }
+    .sub-card-header:hover { background: rgba(255,255,255,0.02); }
+    .sub-card-icon { font-size: 18px; flex-shrink: 0; }
+    .sub-card-title { font-size: 13px; font-weight: 600; flex: 1; }
+    .sub-card-toggle { font-size: 16px; color: var(--muted); transition: transform 0.2s; font-family: monospace; }
+    .sub-card.open .sub-card-toggle { transform: rotate(45deg); }
+    .sub-card-body { display: none; padding: 0 18px 18px; border-top: 1px solid var(--border); padding-top: 14px; }
+    .sub-card.open .sub-card-body { display: block; }
+    .open > .sub-card-toggle { transform: rotate(45deg); }
+
+    /* Sleep affirmation carousel */
+    .sleep-aff {
+      text-align: center; padding: 20px 0; font-size: 16px; font-weight: 500; line-height: 1.5;
+      min-height: 60px; transition: opacity 0.8s ease, transform 0.8s ease; cursor: pointer;
+    }
+    .sleep-aff.fade { opacity: 0; transform: scale(0.95); }
+    .sleep-aff.visible { opacity: 1; transform: scale(1); }
+
+    /* Gratitude */
+    .grat-form { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+    .grat-form textarea {
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px;
+      padding: 10px 14px; color: #fff; font-size: 13px; outline: none; resize: vertical;
+      font-family: inherit; min-height: 48px; transition: border-color 0.2s;
+    }
+    .grat-form textarea:focus { border-color: rgba(200,245,68,0.3); }
+    .grat-entry { padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--text-secondary); }
+    .grat-entry:last-child { border-bottom: none; }
+    .grat-entry-date { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); }
+
+    /* Therapy form */
+    .therapy-form { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+    .therapy-form label { font-size: 11px; font-weight: 700; color: var(--text-secondary); letter-spacing: 0.05em; }
+    .therapy-form textarea, .therapy-form input {
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px;
+      padding: 10px 14px; color: #fff; font-size: 13px; outline: none; font-family: inherit;
+      transition: border-color 0.2s;
+    }
+    .therapy-form textarea:focus, .therapy-form input:focus { border-color: rgba(200,245,68,0.3); }
+    .therapy-form textarea { resize: vertical; min-height: 48px; }
+
+    /* Flip card (Redefine Success) */
+    .flip-card {
+      perspective: 800px; cursor: pointer; margin-bottom: 12px; min-height: 100px;
+    }
+    .flip-card-inner {
+      transition: transform 0.6s ease; transform-style: preserve-3d; position: relative;
+      width: 100%; min-height: 100px;
+    }
+    .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+    .flip-card-front, .flip-card-back {
+      backface-visibility: hidden; position: absolute; top: 0; left: 0; width: 100%;
+      min-height: 100%; border-radius: 10px; padding: 20px;
+      display: flex; flex-direction: column; justify-content: center;
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+    }
+    .flip-card-back { transform: rotateY(180deg); }
+    .flip-card-front .fc-label, .flip-card-back .fc-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 8px;
+    }
+    .flip-card-front .fc-items, .flip-card-back .fc-items {
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .fc-item { font-size: 14px; font-weight: 600; }
+    .fc-item.dim { color: var(--muted); font-weight: 400; text-decoration: line-through; }
+    .fc-item.accent { color: var(--accent); }
+
+    /* Identity cards */
+    .identity-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px;
+    }
+    .identity-card {
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px;
+      padding: 14px 16px; cursor: pointer; transition: all 0.25s; display: flex;
+      align-items: center; gap: 12px;
+    }
+    .identity-card:hover { border-color: #2e2e36; }
+    .identity-card.sealed { border-color: var(--accent); box-shadow: 0 0 12px rgba(200,245,68,0.08); }
+    .id-check {
+      width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--border);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      transition: all 0.25s; font-size: 10px; color: transparent;
+    }
+    .identity-card.sealed .id-check { background: var(--accent); border-color: var(--accent); color: #000; }
+    .id-text { font-size: 13px; font-weight: 500; line-height: 1.4; }
+
+    /* Parent wounds */
+    .parent-warning {
+      background: rgba(255,95,95,0.06); border: 1px solid rgba(255,95,95,0.15);
+      border-radius: 8px; padding: 12px 16px; font-size: 12px; color: var(--danger);
+      margin-bottom: 16px; line-height: 1.5;
+    }
+    .parent-letter-wrap { margin-bottom: 16px; }
+    .parent-letter-wrap label {
+      display: block; font-size: 11px; font-weight: 700; color: var(--text-secondary);
+      letter-spacing: 0.05em; margin-bottom: 8px;
+    }
+    .parent-letter-wrap textarea {
+      width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      border-radius: 8px; padding: 12px 14px; color: #fff; font-size: 13px;
+      outline: none; resize: vertical; min-height: 100px; font-family: inherit;
+      transition: border-color 0.2s;
+    }
+    .parent-letter-wrap textarea:focus { border-color: rgba(200,245,68,0.3); }
+    .parent-actions { display: flex; gap: 8px; margin-top: 8px; }
+    .parent-saved { font-size: 11px; color: var(--accent); opacity: 0; transition: opacity 2s; }
+    .parent-saved.show { opacity: 1; }
+
+    /* Notification banner */
+    .repro-notif {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      background: var(--accent); color: #000; text-align: center;
+      padding: 12px; font-size: 13px; font-weight: 600;
+      transform: translateY(-100%); transition: transform 0.3s ease;
+    }
+    .repro-notif.show { transform: translateY(0); }
   </style>
 </head>
 <body>
@@ -312,6 +628,7 @@
           <div class="mode-pill active" data-mode="personal">PERSONAL<span class="mode-pill-sub" id="pBadge">🔥 0</span></div>
           <div class="mode-pill" data-mode="core">CORE<span class="mode-pill-sub" id="coreBadge">🛡️ 0</span></div>
           <div class="mode-pill" data-mode="corporate">CORPORATE<span class="mode-pill-sub" id="cBadge">📊 0%</span></div>
+          <div class="mode-pill" data-mode="reprogram">REPROGRAM<span class="mode-pill-sub" id="reproBadge">🧬 Phase —</span></div>
           <div class="mode-pill" data-mode="ritual">RITUAL<span class="mode-pill-sub">✨ SEAL</span></div>
         </div>
       </div>
@@ -333,6 +650,7 @@
           <div id="ringStatus" class="ring-status">😴 Still sleeping</div>
           <div id="ringRemaining" class="ring-remaining">--h --m</div>
           <div class="ring-range" style="font-family: ui-monospace, monospace; font-size: 10px; color: var(--text-tertiary); margin-top: 4px;">8:00 AM – 12:00 AM</div>
+          <div id="ringReproBadge" style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);margin-top:4px;min-height:14px;"></div>
         </div>
       </div>
     </div>
@@ -427,53 +745,369 @@
       </div>
     </div>
 
+    <!-- REPROGRAM MODE -->
+    <div id="viewReprogram" class="view-section">
+      <div class="glass-card" style="padding:16px 20px;">
+        <div class="repro-nav" id="reproNav">
+          <button class="repro-tab active" data-repro-tab="phase">Phase Map</button>
+          <button class="repro-tab" data-repro-tab="daily">Daily Practices</button>
+          <button class="repro-tab" data-repro-tab="subconscious">Subconscious</button>
+          <button class="repro-tab" data-repro-tab="conscious">Conscious + Therapy</button>
+          <button class="repro-tab" data-repro-tab="parent">Parent Wounds</button>
+          <button class="repro-tab" data-repro-tab="identity">Identity</button>
+        </div>
+      </div>
+
+      <!-- Phase Map -->
+      <div id="repro-panel-phase" class="repro-panel active">
+        <div class="glass-card">
+          <div class="eyebrow">PHASE MAP</div>
+          <div class="phase-stepper" id="phaseStepper"></div>
+          <button class="btn" id="btnSetStartDate" style="display:none;margin-bottom:16px;">Set Start Date → Begin Journey</button>
+          <div id="phaseDetail" class="phase-detail"></div>
+        </div>
+      </div>
+
+      <!-- Daily Practices -->
+      <div id="repro-panel-daily" class="repro-panel">
+        <div class="glass-card">
+          <div class="dp-ring-wrap">
+            <div class="dp-ring">
+              <svg viewBox="0 0 64 64">
+                <circle cx="32" cy="32" r="28" class="dp-ring-track"></circle>
+                <circle cx="32" cy="32" r="28" class="dp-ring-fill" id="dpRingFill"></circle>
+              </svg>
+              <div class="dp-ring-text" id="dpRingText">0/6</div>
+            </div>
+            <div class="dp-info">
+              <div class="dp-info-label">Daily Non-Negotiables</div>
+              <div class="dp-info-sub" id="dpStreak">🔥 0 day streak</div>
+            </div>
+          </div>
+          <div id="dpList"></div>
+        </div>
+      </div>
+
+      <!-- Subconscious -->
+      <div id="repro-panel-subconscious" class="repro-panel">
+        <div class="glass-card">
+          <div class="eyebrow">SLEEP PROGRAMMING</div>
+          <div class="sub-card open">
+            <div class="sub-card-header" onclick="this.parentElement.classList.toggle('open')">
+              <span class="sub-card-icon">🌙</span>
+              <span class="sub-card-title">Nightly Sleep Affirmations</span>
+              <span class="sub-card-toggle">+</span>
+            </div>
+            <div class="sub-card-body">
+              <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">Say these aloud slowly as you drift off. Tap to cycle through them.</p>
+              <div class="sleep-aff" id="sleepAff"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-card">
+          <div class="eyebrow">NIGHTLY VISUALIZATION</div>
+          <div class="sub-card open">
+            <div class="sub-card-header" onclick="this.parentElement.classList.toggle('open')">
+              <span class="sub-card-icon">🌀</span>
+              <span class="sub-card-title">Future Self Rehearsal</span>
+              <span class="sub-card-toggle">+</span>
+            </div>
+            <div class="sub-card-body">
+              <p style="font-size:13px;color:var(--text-secondary);line-height:1.6;margin-bottom:16px;">
+                Imagine confident future you — how you move, speak, decide, earn, love. 
+                Notice what you see, hear, and feel. Do this for 5 minutes before sleep.
+              </p>
+              <div style="text-align:center;">
+                <button class="btn" id="btnStartVisualization">Start 5-Min Timer</button>
+                <div id="vizTimerDisplay" style="font-family:'DM Mono',monospace;font-size:28px;font-weight:700;margin-top:12px;display:none;">5:00</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-card">
+          <div class="eyebrow">GRATITUDE JOURNAL</div>
+          <div class="sub-card open">
+            <div class="sub-card-header" onclick="this.parentElement.classList.toggle('open')">
+              <span class="sub-card-icon">✨</span>
+              <span class="sub-card-title">Daily Gratitude Log</span>
+              <span class="sub-card-toggle">+</span>
+            </div>
+            <div class="sub-card-body">
+              <div class="grat-form">
+                <textarea id="grat1" placeholder="3 things that happened today..." rows="2"></textarea>
+                <textarea id="grat2" placeholder="Why they happened..." rows="2"></textarea>
+                <textarea id="grat3" placeholder="What I contributed..." rows="2"></textarea>
+                <button class="btn" id="btnGratSave">Save Entry</button>
+              </div>
+              <div id="gratLog"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Conscious + Therapy -->
+      <div id="repro-panel-conscious" class="repro-panel">
+        <div class="glass-card">
+          <div class="eyebrow">WEEKLY THERAPY EXERCISE</div>
+          <p style="font-size:12px;color:var(--muted);margin-bottom:16px;">Every Sunday, reflect on your triggers. This weakens automatic patterns over time.</p>
+          <div class="therapy-form">
+            <label>What triggered me?</label>
+            <input type="text" id="th1" placeholder="e.g. My manager criticized my work">
+            <label>Why did it trigger me?</label>
+            <textarea id="th2" rows="2" placeholder="I felt dismissed, like my effort didn't matter..."></textarea>
+            <label>What childhood belief was activated?</label>
+            <input type="text" id="th3" placeholder="e.g. 'I'm only worthy if I achieve'">
+            <label>What evidence exists against this belief?</label>
+            <textarea id="th4" rows="2" placeholder="I've succeeded before. My worth isn't tied to any single outcome..."></textarea>
+            <label>What will I do differently next time?</label>
+            <textarea id="th5" rows="2" placeholder="I'll pause, breathe, and remind myself of the evidence..."></textarea>
+            <button class="btn" id="btnThSave">Save Reflection</button>
+          </div>
+          <div id="thLog"></div>
+        </div>
+
+        <div class="glass-card">
+          <div class="eyebrow">CONSCIOUS PRACTICES</div>
+          <p style="font-size:12px;color:var(--muted);margin-bottom:16px;">Return to these throughout your day. They recalibrate your decision-making.</p>
+
+          <div class="sub-card" style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px;">
+            <div style="padding:14px 18px;display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none;" onclick="this.parentElement.classList.toggle('open')">
+              <span style="font-size:18px;flex-shrink:0;">🔄</span>
+              <span style="font-size:13px;font-weight:600;flex:1;">Redefine Success</span>
+              <span style="font-size:16px;color:var(--muted);font-family:monospace;" class="sub-card-toggle">+</span>
+            </div>
+            <div class="sub-card-body">
+              <p style="font-size:12px;color:var(--text-secondary);margin-bottom:14px;line-height:1.5;">
+                Your brain filters reality through your definition of success. If it's tied to income and validation, every interaction becomes a test.
+                Flip the frame below to see the alternative.
+              </p>
+              <div class="flip-card" id="flipRedefine" style="height:180px;">
+                <div class="flip-card-inner" style="height:180px;">
+                  <div class="flip-card-front" style="height:180px;justify-content:flex-start;">
+                    <div class="fc-label">Old Definition</div>
+                    <div style="font-size:10px;color:var(--muted);margin-bottom:10px;">(The frame that keeps you performing)</div>
+                    <div class="fc-items">
+                      <div class="fc-item" style="color:var(--danger);">✕ Income</div>
+                      <div class="fc-item" style="color:var(--danger);">✕ Job title</div>
+                      <div class="fc-item" style="color:var(--danger);">✕ External validation</div>
+                    </div>
+                    <p style="font-size:10px;color:var(--muted);margin-top:auto;">Tap to flip →</p>
+                  </div>
+                  <div class="flip-card-back" style="height:180px;justify-content:flex-start;">
+                    <div class="fc-label">New Definition</div>
+                    <div style="font-size:10px;color:var(--muted);margin-bottom:10px;">(The frame that sets you free)</div>
+                    <div class="fc-items">
+                      <div class="fc-item" style="color:var(--accent);">✓ Integrity</div>
+                      <div class="fc-item" style="color:var(--accent);">✓ Consistency</div>
+                      <div class="fc-item" style="color:var(--accent);">✓ Learning</div>
+                      <div class="fc-item" style="color:var(--accent);">✓ Relationships</div>
+                      <div class="fc-item" style="color:var(--accent);">✓ Contribution</div>
+                    </div>
+                    <p style="font-size:10px;color:var(--muted);margin-top:auto;">← Tap to flip back</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sub-card" style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px;">
+            <div style="padding:14px 18px;display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none;" onclick="this.parentElement.classList.toggle('open')">
+              <span style="font-size:18px;flex-shrink:0;">🎯</span>
+              <span style="font-size:13px;font-weight:600;flex:1;">Challenge Perfectionism</span>
+              <span style="font-size:16px;color:var(--muted);font-family:monospace;" class="sub-card-toggle">+</span>
+            </div>
+            <div class="sub-card-body">
+              <p style="font-size:12px;color:var(--text-secondary);margin-bottom:10px;line-height:1.6;">
+                Perfectionism is not high standards — it's fear dressed up as precision. It keeps you preparing instead of executing.
+                The antidote is not lower standards. It's a different question.
+              </p>
+              <div style="background:rgba(242,192,99,0.08);border-left:3px solid var(--warning);border-radius:0 8px 8px 0;padding:16px 18px;">
+                <div style="font-size:14px;font-weight:500;color:var(--warning);line-height:1.5;">
+                  "What's the smallest next action?"
+                </div>
+                <div style="font-size:11px;color:var(--muted);margin-top:4px;">Not "What's the perfect plan?"</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sub-card" style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;overflow:hidden;">
+            <div style="padding:14px 18px;display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none;" onclick="this.parentElement.classList.toggle('open')">
+              <span style="font-size:18px;flex-shrink:0;">🛡️</span>
+              <span style="font-size:13px;font-weight:600;flex:1;">Stop Outsourcing Self-Worth</span>
+              <span style="font-size:16px;color:var(--muted);font-family:monospace;" class="sub-card-toggle">+</span>
+            </div>
+            <div class="sub-card-body">
+              <p style="font-size:12px;color:var(--text-secondary);margin-bottom:10px;line-height:1.6;">
+                When your worth depends on others' opinions, you hand them the remote to your emotional state.
+                The shift is from external approval to internal alignment.
+              </p>
+              <div style="background:rgba(78,205,196,0.08);border-left:3px solid var(--cool);border-radius:0 8px 8px 0;padding:16px 18px;">
+                <div style="font-size:14px;font-weight:500;color:var(--cool);line-height:1.5;">
+                  "Would future Lakshya respect this decision?"
+                </div>
+                <div style="font-size:11px;color:var(--muted);margin-top:4px;">Not "What will people think?"</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Parent Wounds -->
+      <div id="repro-panel-parent" class="repro-panel">
+        <div class="glass-card">
+          <div class="eyebrow">HEALING PARENT WOUNDS</div>
+          <div class="parent-warning">
+            <strong>📡 Synced to cloud (Firebase).</strong> Your letters are stored on the server and will persist even if you clear your browser data.
+            Each save creates a new version so you can observe how your thoughts evolve over time.
+          </div>
+          <p style="font-size:12px;color:var(--text-secondary);margin-bottom:20px;line-height:1.6;">
+            Write two letters — <strong>do not send them.</strong> Hold both truths: pain and gratitude. 
+            This helps move away from seeing things as all good or all bad.
+            Each time you save, a dated version is recorded. Use the look book below to track how your perspective shifts.
+          </p>
+
+          <div class="parent-letter-wrap">
+            <label>Letter 1 — Everything you wish your parents understood. No filtering.</label>
+            <textarea id="parentLetter1" rows="6" placeholder="Write whatever comes. Don't edit. Don't filter."></textarea>
+            <div class="parent-actions">
+              <button class="btn" onclick="copyParentLetter(1)">📋 Copy Letter 1</button>
+              <span class="parent-saved" id="parentSaved1">Saved to cloud</span>
+            </div>
+          </div>
+
+          <div class="parent-letter-wrap">
+            <label>Letter 2 — Everything you're grateful for.</label>
+            <textarea id="parentLetter2" rows="6" placeholder="Even the hard truth can coexist with gratitude."></textarea>
+            <div class="parent-actions">
+              <button class="btn" onclick="copyParentLetter(2)">📋 Copy Letter 2</button>
+              <span class="parent-saved" id="parentSaved2">Saved to cloud</span>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;">
+            <button class="btn" id="btnSaveParentVersion" style="background:rgba(200,245,68,0.1);border-color:rgba(200,245,68,0.2);color:var(--accent);">💾 Save This Version</button>
+            <button class="btn" id="btnClearParentVersions" style="color:var(--danger);border-color:rgba(255,95,95,0.2);">🗑️ Clear All Versions</button>
+          </div>
+        </div>
+
+        <div class="glass-card" id="parentLookBook">
+          <div class="eyebrow">📖 LOOK BOOK — How Your Thoughts Evolve</div>
+          <p style="font-size:12px;color:var(--muted);margin-bottom:16px;">
+            Every time you save, you create a dated snapshot. Review past versions to see how your perspective has changed.
+            This is the evidence of healing.
+          </p>
+          <div id="parentLookBookEntries"></div>
+        </div>
+      </div>
+
+      <!-- Identity -->
+      <div id="repro-panel-identity" class="repro-panel">
+        <div class="glass-card">
+          <div class="eyebrow">BUILD YOUR IDENTITY</div>
+          <p style="font-size:12px;color:var(--muted);margin-bottom:16px;">Don't chase motivation. Become this person. Tap each statement to seal it.</p>
+          <div class="identity-grid" id="identityGrid"></div>
+        </div>
+
+        <div class="glass-card">
+          <div class="eyebrow">MONTHLY PURPOSE CHECK</div>
+          <p style="font-size:12px;color:var(--muted);margin-bottom:16px;">Purpose isn't found — it's built. Every month, ask yourself:</p>
+          <div id="monthlyPurposeForm">
+            <div class="therapy-form">
+              <label>If nobody judged me, what would I build?</label>
+              <textarea id="mp1" rows="2"></textarea>
+              <label>Who would I become?</label>
+              <textarea id="mp2" rows="2"></textarea>
+              <label>How would I spend my time?</label>
+              <textarea id="mp3" rows="2"></textarea>
+              <button class="btn" id="btnMpSave">Save Monthly Reflection</button>
+            </div>
+          </div>
+          <div id="mpLog"></div>
+        </div>
+      </div>
+    </div>
+
     <!-- RITUAL MODE -->
     <div id="viewRitual" class="view-section">
       <div class="ritual-container">
         <div class="ritual-title">THE 0.1% MORNING SEAL</div>
+        <div class="phase-steps" id="phaseSteps">
+          <span class="phase-step active" data-phase="1">RESET</span>
+          <span class="phase-connector"></span>
+          <span class="phase-step" data-phase="2">IDENTITY</span>
+          <span class="phase-connector"></span>
+          <span class="phase-step" data-phase="3">FUTURE</span>
+          <span class="phase-connector"></span>
+          <span class="phase-step" data-phase="4">PROMISE</span>
+          <span class="phase-connector"></span>
+          <span class="phase-step" data-phase="5">STILLNESS</span>
+        </div>
         <div class="ritual-timer pulse" id="rTimer">00<span class="colon">:</span>00</div>
         
         <div class="ritual-phase active" id="rPhase1">
-          <div class="eyebrow" style="margin-bottom: 20px;">PHASE 1: PHYSIOLOGICAL RESET</div>
+          <div class="eyebrow" style="margin-bottom: 20px;">PHASE 1 · RESET YOUR STATE</div>
           <div style="font-size:14px; color:var(--text-secondary); max-width: 400px; line-height: 1.5; margin: 0 auto;">
-            💧 Cold water on face + neck (30 seconds). Shock the system out of yesterday.
+            💧 Wash your face and neck with cold water.<br>
+            Today's mind deserves today's energy.
           </div>
-          <button class="btn" id="btnWaterCheck" style="margin-top: 20px;">✅ WATER DONE</button>
+          <button class="btn" id="btnWaterCheck" style="margin-top: 20px;">✅ I'M RESET</button>
           
           <div class="breath-circle" id="breathCircle" style="display: none;">
             <span class="breath-text" id="breathText">BREATHE</span>
           </div>
-          <div style="font-size:11px; color:var(--text-tertiary); display:none; margin-top:20px;" id="breathCount">Cycles: 0 / 6</div>
+          <div style="font-size:11px; color:var(--text-tertiary); display:none; margin-top:20px;" id="breathCount">0 / 6</div>
           <div style="font-size:12px; color:var(--text-secondary); margin-top:10px; display:none;" id="breathCue"></div>
         </div>
         
         <div class="ritual-phase" id="rPhase2">
-          <div class="eyebrow" style="margin-bottom: 30px;">PHASE 2: IDENTITY SEAL</div>
-          <div style="font-size:11px; color:var(--text-tertiary); margin-bottom: 20px;">Stand tall. Chin up. Speak aloud.</div>
+          <div class="eyebrow" style="margin-bottom: 20px;">PHASE 2 · BECOME WHO YOU ARE</div>
+          <div style="font-size:12px; color:var(--text-secondary); line-height: 1.6; margin: 0 auto 20px auto; max-width: 400px; text-align: left; display: inline-block;">
+            • Stand tall.<br>
+            • Feet grounded.<br>
+            • Shoulders relaxed.<br>
+            • Eyes forward.<br>
+            • Speak each sentence slowly.
+          </div>
           <div id="affirmationsContainer"></div>
-          <button class="btn-ritual" id="btnPhase2" style="opacity: 0; pointer-events: none;">🔨 TAP CHEST 3 TIMES</button>
+          <button class="btn-ritual" id="btnPhase2" style="opacity: 0; pointer-events: none;">🤝 PLACE HAND ON HEART</button>
         </div>
         
         <div class="ritual-phase" id="rPhase3">
-          <div class="eyebrow" style="margin-bottom: 30px;">PHASE 3: EMBODIED VISION</div>
-          <div style="font-size:11px; color:var(--text-tertiary); margin-bottom: 20px;">Feel it in your body as already real.</div>
+          <div class="eyebrow" style="margin-bottom: 20px;">PHASE 3 · EXPERIENCE YOUR FUTURE</div>
+          <div style="font-size:12px; color:var(--text-secondary); line-height: 1.6; margin: 0 auto 20px auto; max-width: 400px; text-align: left; display: inline-block;">
+            • Imagine each moment vividly.<br>
+            • Notice what you see.<br>
+            • Hear.<br>
+            • Feel.<br>
+            • Breathe.
+          </div>
           <div id="scenesContainer"></div>
           <button class="btn-ritual" id="btnPhase3" style="opacity:0; pointer-events:none;">PROCEED</button>
         </div>
         
         <div class="ritual-phase" id="rPhase4">
-          <div class="eyebrow" style="margin-bottom: 30px;">PHASE 4: COMMITMENT</div>
-          <div style="font-size:14px;">"Today I create..."</div>
-          <input type="text" id="commitInput" class="commit-input" placeholder="e.g. the onboarding system build">
-          <div style="font-size:14px;">"...It is already done."</div>
-          <div style="margin-top: 30px; font-size: 13px; color: var(--text-secondary); font-style: italic;">
-            "Thank you for the man I already am and the success that flows from it."
-          </div>
-          <button class="btn-ritual" id="btnPhase4">Seal Commitment</button>
+          <div class="eyebrow" style="margin-bottom: 20px;">PHASE 4 · TODAY'S PROMISE</div>
+          
+          <div style="font-size:14px; color:var(--text-secondary); margin-bottom: 8px;">Today I will complete...</div>
+          <input type="text" id="commitInput" class="commit-input" placeholder="Finish onboarding automation." style="margin: 8px 0 24px 0;">
+          
+          <div style="font-size:14px; color:var(--text-secondary); margin-bottom: 8px;">If I lose focus...</div>
+          <input type="text" id="focusInput" class="commit-input" placeholder="I will take three deep breaths and return to my next task." style="margin: 8px 0 24px 0;">
+          
+          <button class="btn-ritual" id="btnPhase4">SEAL TODAY</button>
         </div>
         
         <div class="ritual-phase" id="rPhase5">
-          <div class="eyebrow" style="margin-bottom: 10px;">PHASE 5: SILENT PRESENCE</div>
+          <div class="eyebrow" style="margin-bottom: 20px;">PHASE 5 · SILENT PRESENCE</div>
+          <div style="font-size:12px; color:var(--text-secondary); line-height: 1.6; margin: 0 auto 20px auto; max-width: 400px; text-align: left; display: inline-block;">
+            • Sit comfortably.<br>
+            • Observe your breathing.<br>
+            • No fixing.<br>
+            • No forcing.<br>
+            • Simply notice.
+          </div>
           <div class="silent-ring"></div>
           <div id="finalSeal" style="opacity: 0; font-size: 18px; color: var(--ritual-gold); transition: opacity 2s;">
             "My self-worth is non-negotiable. I already belong in the life I'm building. Now I execute."
@@ -491,6 +1125,7 @@
     const firebaseConfig = {
       apiKey: "AIzaSyCzyMi_-00MNKUmEkYH9FPHk6ceJYo4Qys",
       authDomain: "aethelgard-ac6a7.firebaseapp.com",
+      databaseURL: "https://aethelgard-ac6a7-default-rtdb.firebaseio.com",
       projectId: "aethelgard-ac6a7",
       storageBucket: "aethelgard-ac6a7.firebasestorage.app",
       messagingSenderId: "289662713422",
@@ -546,6 +1181,7 @@
         }
       }
       function genId() { return Math.random().toString(36).substr(2, 9); }
+      function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
       function getDateStr(d) { return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
       function getToday() { const d = new Date(); if(d.getHours()<6) d.setDate(d.getDate()-1); return getDateStr(d); }
       function getWeekStr() {
@@ -718,10 +1354,10 @@
 
           let str = load('streak:personal_v2', 0);
           const lastDate = load('streak:lastPersonalDate', '');
-          if(pTotal > 0 && pDone === pTotal && lastDate !== todayStr) { 
+          if(pTotal > 0 && pDone === pTotal && lastDate !== todayStr && lastDate !== 'revoked_' + todayStr) { 
             str++; save('streak:personal_v2', str); save('streak:lastPersonalDate', todayStr); 
           } else if(pTotal > 0 && pDone < pTotal && lastDate === todayStr) {
-            str = Math.max(0, str - 1); save('streak:personal_v2', str); save('streak:lastPersonalDate', 'revoked');
+            str = Math.max(0, str - 1); save('streak:personal_v2', str); save('streak:lastPersonalDate', 'revoked_' + todayStr);
           }
 
           document.getElementById('pStreakVal').textContent = str;
@@ -741,7 +1377,9 @@
       }
 
       document.getElementById('pDailyAdd').onclick = () => { const inp=document.getElementById('pDailyInput'); if(!inp.value.trim()) return; const arr = load('p:daily:'+todayStr, []); arr.push({id:genId(), text:inp.value.trim(), done:false}); save('p:daily:'+todayStr, arr); inp.value=''; renderPersonal(); };
+      document.getElementById('pDailyInput').onkeydown = (e) => { if(e.key==='Enter') document.getElementById('pDailyAdd').click(); };
       document.getElementById('pWeeklyAdd').onclick = () => { const inp=document.getElementById('pWeeklyInput'); if(!inp.value.trim()) return; const arr = load('p:weekly:'+weekStr, []); arr.push({id:genId(), text:inp.value.trim(), done:false}); save('p:weekly:'+weekStr, arr); inp.value=''; renderPersonal(); };
+      document.getElementById('pWeeklyInput').onkeydown = (e) => { if(e.key==='Enter') document.getElementById('pWeeklyAdd').click(); };
 
       // Core Engine (19 Disciplines)
       function renderCore() {
@@ -850,17 +1488,871 @@
       }
 
       document.getElementById('cDailyAdd').onclick = () => { const inp=document.getElementById('cDailyInput'), t=document.getElementById('cDailyTarget'); if(!inp.value.trim()) return; const arr = load('c:daily:'+todayStr, []); arr.push({id:genId(), text:inp.value.trim(), prog:0, target:parseInt(t.value)||100}); save('c:daily:'+todayStr, arr); inp.value=''; renderCorporate(); };
+      document.getElementById('cDailyInput').onkeydown = (e) => { if(e.key==='Enter') document.getElementById('cDailyAdd').click(); };
       document.getElementById('cWeeklyAdd').onclick = () => { const inp=document.getElementById('cWeeklyInput'), t=document.getElementById('cWeeklyTarget'); if(!inp.value.trim()) return; const arr = load('c:weekly:'+weekStr, []); arr.push({id:genId(), text:inp.value.trim(), prog:0, target:parseInt(t.value)||100}); save('c:weekly:'+weekStr, arr); inp.value=''; renderCorporate(); };
+      document.getElementById('cWeeklyInput').onkeydown = (e) => { if(e.key==='Enter') document.getElementById('cWeeklyAdd').click(); };
+
+      // ─── REPROGRAM ENGINE ───
+      const REPRO_PREFIX = 'repro:';
+      function reproLoad(k, d) { return load(REPRO_PREFIX + k, d); }
+      function reproSave(k, v) { save(REPRO_PREFIX + k, v); }
+
+      const REPRO_PHASES = [
+        { id:1, name:"Nervous System Stabilization", dur:"Weeks 1–4", months:[0,1],
+          desc:"Your subconscious learns through repetition, emotion, and experience — not just thinking. Phase 1 builds a calm nervous system as the foundation for all deeper work.",
+          why:"Without a regulated nervous system, every attempt at change is undermined by survival-mode reactions. Fear, hypervigilance, and avoidance all live in the body, not the intellect. Stabilizing the nervous system first means your higher brain can actually lead.",
+          principle:"Safety is not a feeling — it's a physiological state you can build. When your body believes it's safe, your mind can finally move forward.",
+          daily:[
+            "Slow breathing (5 min): Inhale 4s, exhale 6s. Teaches your brain: 'I am safe.'",
+            "Fear journaling (10 min): Write 'What am I afraid of today?' then 'If that actually happened, would I survive?'",
+            "Visualization (5 min): Imagine confident future you — calm, successful, humble, loved. How he behaves, not what he has."
+          ],
+          milestones:[
+            { title:"Completed 7 consecutive days of morning practice", desc:"7 days is enough for your nervous system to start registering the new pattern as normal. The first week is the hardest — completing it proves you can." },
+            { title:"Completed 14 consecutive days of morning practice", desc:"Two weeks of consistency begins to rewire your baseline. Your body starts to expect calm rather than alertness." },
+            { title:"Completed 28 days (full phase)", desc:"28 days of practice has been shown to create measurable shifts in baseline anxiety and stress reactivity. You've built a foundation." },
+            { title:"Can identify your top 3 fear patterns from journal entries", desc:"Self-awareness is the bedrock. Once you name the pattern, you can interrupt it in real time instead of being run by it." }
+          ]
+        },
+        { id:2, name:"Rewrite Childhood Beliefs", dur:"Month 2–3", months:[1,3],
+          desc:"Take one belief every week. Ask: Who first taught me this? Was it objectively true? Would I tell a child this? What belief would I rather live by?",
+          why:"Most of your blocks — fear of success, people-pleasing, perfectionism — are not original thoughts. They were installed before you had the capacity to question them. Rewriting them at their source is faster than managing the symptoms forever.",
+          principle:"The beliefs that shaped you were not chosen by you. The ones that define you going forward can be.",
+          daily:[
+            "Identify one limiting belief for the week",
+            "Journal through the 4 questions: Who taught it? Is it true? Would I tell a child? What would I rather believe?",
+            "Write the replacement belief",
+            "Read the new belief aloud every day for the week"
+          ],
+          milestones:[
+            { title:"Rewired 4+ limiting beliefs", desc:"Each belief you rewrite is a root cause of fear of success, people-pleasing, or perfectionism that loses its power. 4+ creates momentum." },
+            { title:"Can identify when an old belief is active in real time", desc:"Recognition in the moment is when change accelerates. You catch the belief before it drives behavior — this is the skill that generalizes across all areas of life." },
+            { title:"Read new beliefs aloud for 21+ consecutive days", desc:"21 days of repetition is the threshold where the new belief begins to feel natural to your subconscious. It shifts from something you read to something you are." }
+          ]
+        },
+        { id:3, name:"Exposure to Uncertainty", dur:"Month 3–6", months:[3,6],
+          desc:"Your subconscious only changes when reality contradicts old fears. Every week, deliberately do things where failure is possible.",
+          why:"The brain learns safety through experience, not thought. Talk therapy and journaling can understand a fear — only lived experience can extinguish it. Repeated exposure to uncertainty teaches your nervous system that you survive what you fear.",
+          principle:"Courage is not the absence of fear. It is the evidence, accumulated daily, that you can act despite it.",
+          daily:[
+            "Complete one Deliberate Uncomfortable Act (tracked in Daily Practices)",
+            "After each act write: 'I did ___ and I survived / it went ___'",
+            "Talk to someone attractive, publish imperfect work, apply above your level, speak first"
+          ],
+          milestones:[
+            { title:"Completed 4+ discomfort acts in a single week", desc:"4 acts in a week creates a density of evidence that your brain cannot ignore. It's the difference between 'I tried once' and 'this is a new pattern.'" },
+            { title:"Completed 12+ total discomfort acts", desc:"12+ acts crosses the threshold where the default response shifts from avoidance to approach. Your brain starts to register uncertainty as manageable." },
+            { title:"Felt noticeable reduction in anticipatory fear before acts", desc:"This is the real metric — not the act itself, but the shrinking of the fear that precedes it. When fear before an act drops, the rewiring is working." },
+            { title:"Built a streak of at least 1 act per day for 7 days", desc:"Daily exposure rewires the avoidance circuit faster than weekly exposure. 7 days in a row creates a memory of consistency that your nervous system can't ignore." }
+          ]
+        },
+        { id:4, name:"Build Self-Trust", dur:"Month 6–9", months:[6,9],
+          desc:"Self-trust comes from evidence, not motivation. Every evening, ask: 'What promises did I keep today?' Even tiny ones count.",
+          why:"Low self-trust is not a character flaw — it's a data problem. Your brain has more evidence of broken promises (including from childhood) than kept ones. Rebuilding trust requires flooding the system with counter-evidence, one kept promise at a time.",
+          principle:"Self-trust is not belief — it's memory. The more promises you keep, the more evidence your brain has that you are reliable.",
+          daily:[
+            "Evening reflection: identify at least 3 promises you kept today",
+            "Gym ✓, Read ✓, Healthy food ✓, Difficult conversation ✓ — each one is data",
+            "Each promise kept = your brain learns 'I am reliable'"
+          ],
+          milestones:[
+            { title:"30-day streak of keeping at least 3 daily promises", desc:"30 days of self-trust evidence begins to override the old data that told you that you were unreliable. It's the minimum dose for detectable change." },
+            { title:"60-day streak of keeping at least 3 daily promises", desc:"60 days deepens the neural pathway. Self-trust shifts from effort to identity — you no longer have to remind yourself to follow through." },
+            { title:"90-day streak — self-trust is now part of your identity", desc:"90 days of consistent self-trust means your brain now defaults to 'I follow through.' It has become your baseline, not your goal." },
+            { title:"Can recall 10+ promises kept in the last week without checking logs", desc:"When you can recall your kept promises without looking at a log, self-trust has become internalized. You don't need external proof anymore." }
+          ]
+        },
+        { id:5, name:"Build Purpose", dur:"Month 9–12", months:[9,12],
+          desc:"Purpose isn't found — it's built. Ask monthly: If nobody judged me, what would I build? Who would I become? How would I spend my time?",
+          why:"Purpose paralysis is often perfectionism in disguise — waiting for the 'right answer' before moving. Purpose is a direction, not a destination. Monthly recalibration keeps you moving without requiring certainty.",
+          principle:"You don't find your purpose by thinking harder. You build it by taking imperfect steps and noticing which ones feel alive.",
+          daily:[
+            "Complete the monthly purpose reflection (see Identity tab)",
+            "Take at least one concrete action toward your direction this month",
+            "Track how your answers evolve — direction matters more than speed"
+          ],
+          milestones:[
+            { title:"Completed 3 monthly purpose reflections", desc:"3 months of reflection reveals patterns in what matters to you. Purpose starts to clarify not as a single answer, but as a direction." },
+            { title:"Completed 6 monthly purpose reflections", desc:"6 months of data gives you enough signal to distinguish what's truly meaningful from what's just noise. Patterns become unmistakable." },
+            { title:"Identified a clear direction / mission statement", desc:"A written direction gives you a filter for decisions. Without it, every choice feels equally important and none get made." },
+            { title:"Took at least one concrete action toward that direction", desc:"Purpose is built through action, not thought. One concrete step confirms that the direction is real and not just a compelling idea." },
+            { title:"Completed all 12 months — transformation cycle complete", desc:"The full cycle is complete. Your inner architecture has been redesigned from the ground up — not by force, but by daily, consistent reprogramming." }
+          ]
+        }
+      ];
+
+      const SLEEP_AFFIRMATIONS = [
+        "I am safe.",
+        "I trust myself.",
+        "I can handle uncertainty.",
+        "I deserve success without guilt."
+      ];
+
+      const IDENTITY_STATEMENTS = [
+        "I keep promises to myself.",
+        "I face uncertainty.",
+        "I speak honestly.",
+        "I respect my body.",
+        "I create value.",
+        "I don't need everyone's approval.",
+        "I am becoming someone who can handle whatever happens."
+      ];
+
+      const DP_KEYS = ['breathwork','journaling','exercise','reading','discomfort','reflection'];
+      const DP_LABELS = [
+        ['Breathwork / Meditation','20 min','dot-accent','Calms your nervous system and trains your mind to respond rather than react.'],
+        ['Journaling (fear/purpose)','15 min','dot-warm','Externalizes fears so you can see they\'re survivable. Builds self-awareness.'],
+        ['Exercise / Physiotherapy','20 min','dot-body','Clears cortisol, builds body confidence, and reinforces the discipline loop.'],
+        ['Reading (psychology/philosophy)','20 min','dot-cool','Exposes you to new mental models. Expands your identity through learning.'],
+        ['Deliberate Uncomfortable Act','1 action','dot-danger','Proves to your brain that uncertainty is survivable. Shrinks fear through experience.'],
+        ['Evening Reflection','5 min','dot-mind','Trains your brain to notice what went right. Builds self-trust through evidence.']
+      ];
+
+      let currentReproTab = 'phase';
+      let vizTimer = null;
+      let reproTabsInitialized = false;
+
+      function getCurrentPhase() {
+        const sd = reproLoad('startDate', null);
+        if (!sd) return 1;
+        const start = new Date(sd);
+        const now = new Date();
+        const ms = now - start;
+        const months = ms / (30 * 24 * 60 * 60 * 1000);
+        if (months < 1) return 1;
+        if (months < 3) return 2;
+        if (months < 6) return 3;
+        if (months < 9) return 4;
+        return 5;
+      }
+
+      function initReprogramTabs() {
+        if (reproTabsInitialized) return;
+        reproTabsInitialized = true;
+        document.querySelectorAll('.repro-tab').forEach(el => {
+          el.addEventListener('click', function() {
+            const name = this.dataset.reproTab;
+            currentReproTab = name;
+            document.querySelectorAll('.repro-tab').forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            document.querySelectorAll('.repro-panel').forEach(p => p.classList.remove('active'));
+            const panel = document.getElementById('repro-panel-' + name);
+            if (panel) panel.classList.add('active');
+            if (name === 'subconscious') renderSubconscious();
+            if (name === 'conscious') renderTherapy();
+            if (name === 'parent') renderParentWounds();
+            if (name === 'identity') renderIdentity();
+          });
+        });
+      }
+
+      // ─── PHASE MAP ───
+      function renderPhaseMap() {
+        const sd = reproLoad('startDate', null);
+        const currentPhase = sd ? getCurrentPhase() : null;
+        const milestones = reproLoad('phaseMilestones', {1:[],2:[],3:[],4:[],5:[]});
+
+        // Phase arc narratives
+        const phaseArc = [
+          { tag: "CALM", short: "Stabilize your nervous system so fear stops driving." },
+          { tag: "HEAL", short: "Rewrite the childhood beliefs that run you unconsciously." },
+          { tag: "EXPOSE", short: "Prove to your brain that uncertainty is survivable." },
+          { tag: "TRUST", short: "Flood your system with evidence that you keep promises." },
+          { tag: "BUILD", short: "Design purpose from action, not from waiting for clarity." }
+        ];
+
+        const stepper = document.getElementById('phaseStepper');
+        stepper.innerHTML = '';
+        REPRO_PHASES.forEach((p, i) => {
+          if (i > 0) {
+            const line = document.createElement('div');
+            line.className = 'phase-line' + (currentPhase !== null && i < currentPhase ? ' done' : '');
+            stepper.appendChild(line);
+          }
+          const wrap = document.createElement('div');
+          wrap.className = 'phase-step-wrap';
+          const dot = document.createElement('div');
+          dot.className = 'phase-dot';
+          if (currentPhase === null) dot.className += ' future';
+          else if (p.id < currentPhase) dot.className += ' done';
+          else if (p.id === currentPhase) dot.className += ' active';
+          else dot.className += ' future';
+          dot.textContent = p.id;
+          // Click dot to show quick preview
+          dot.style.cursor = 'pointer';
+          dot.title = phaseArc[i].tag + ': ' + phaseArc[i].short;
+          const lbl = document.createElement('div');
+          lbl.className = 'phase-label';
+          const shortName = p.name.split(' ').slice(0,2).join(' ');
+          lbl.textContent = shortName;
+          wrap.appendChild(dot);
+          wrap.appendChild(lbl);
+          stepper.appendChild(wrap);
+        });
+
+        const btnStart = document.getElementById('btnSetStartDate');
+        const detail = document.getElementById('phaseDetail');
+
+        if (!sd) {
+          btnStart.style.display = 'inline-block';
+          btnStart.onclick = () => {
+            const today = getDateStr(new Date());
+            reproSave('startDate', today);
+            renderPhaseMap();
+            renderReprogram();
+            document.getElementById('reproBadge').textContent = '🧬 Phase 1';
+            showReproNotif('Phase 1 started. Your transformation begins.');
+          };
+          detail.innerHTML = `
+            <div style="text-align:center;padding:40px 20px;">
+              <div style="font-size:48px;margin-bottom:16px;line-height:1;">🧬</div>
+              <div style="font-size:20px;font-weight:700;color:#fff;margin-bottom:10px;">Your 12-Month Inner Rewiring</div>
+              <p style="color:var(--text-secondary);font-size:13px;line-height:1.7;max-width:460px;margin:0 auto 20px;">
+                This system is built to dismantle 13 root blocks at the subconscious and conscious level simultaneously. 
+                Five phases. One arc: from fear-driven to purpose-built.
+              </p>
+              <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:24px;">
+                <span style="padding:4px 12px;border-radius:6px;background:rgba(200,245,68,0.08);color:var(--accent);font-size:11px;font-family:'DM Mono',monospace;">🧠 Calm →</span>
+                <span style="padding:4px 12px;border-radius:6px;background:rgba(200,245,68,0.08);color:var(--accent);font-size:11px;font-family:'DM Mono',monospace;">❤️ Heal →</span>
+                <span style="padding:4px 12px;border-radius:6px;background:rgba(200,245,68,0.08);color:var(--accent);font-size:11px;font-family:'DM Mono',monospace;">⚡ Expose →</span>
+                <span style="padding:4px 12px;border-radius:6px;background:rgba(200,245,68,0.08);color:var(--accent);font-size:11px;font-family:'DM Mono',monospace;">🔥 Trust →</span>
+                <span style="padding:4px 12px;border-radius:6px;background:rgba(200,245,68,0.08);color:var(--accent);font-size:11px;font-family:'DM Mono',monospace;">🚀 Build</span>
+              </div>
+              <p style="color:var(--muted);font-size:12px;max-width:400px;margin:0 auto 24px;line-height:1.5;">
+                Set your start date below. The system will track your phase progression, daily practices, 
+                and milestones automatically over the next 12 months.
+              </p>
+            </div>`;
+          return;
+        }
+
+        btnStart.style.display = 'none';
+        const phase = REPRO_PHASES[currentPhase - 1];
+        const msDone = milestones[currentPhase] || [];
+
+        const dailyHtml = phase.daily.map((d, i) =>
+          `<div class="pd-instruction"><span class="pd-bullet">0${i+1}</span><span>${d}</span></div>`
+        ).join('');
+
+        const mileHtml = phase.milestones.length > 0 ? phase.milestones.map((m, i) => {
+          const done = msDone.includes(i);
+          return `<div class="milestone-row ${done?'done':''}" onclick="togglePhaseMilestone(${phase.id},${i})">
+            <div class="m-check">${done?'✓':''}</div>
+            <div style="flex:1;">
+              <div class="m-text">${m.title}</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:3px;line-height:1.4;${done?'opacity:0.5':''}">${m.desc}</div>
+            </div>
+          </div>`;
+        }).join('') : '';
+
+        const allDone = phase.milestones.length > 0 && msDone.length >= phase.milestones.length;
+
+        const monthsIn = Math.floor((new Date() - new Date(sd)) / (30*24*60*60*1000)) + 1;
+
+        const arcTotal = phaseArc.length;
+        const arcDone = currentPhase - 1;
+        const arcPct = Math.round((arcDone / arcTotal) * 100);
+
+        detail.innerHTML = `
+          <div style="margin-bottom:20px;padding:20px 24px;background:rgba(200,245,68,0.04);border:1px solid rgba(200,245,68,0.1);border-radius:12px;">
+            <div style="font-size:13px;font-weight:600;color:#fff;margin-bottom:6px;">
+              ${currentPhase === 1 ? 'You are at the beginning of a transformation.' :
+                currentPhase === 5 ? 'You are in the final phase. Purpose is being built.' :
+                'Your transformation is in progress.'}
+            </div>
+            <div style="font-size:12px;color:var(--text-secondary);line-height:1.6;">
+              The arc: <strong style="color:var(--accent);">Calm</strong> the nervous system →
+              <strong style="color:var(--accent);">Heal</strong> old beliefs →
+              <strong style="color:var(--accent);">Expose</strong> yourself to uncertainty →
+              <strong style="color:var(--accent);">Trust</strong> yourself consistently →
+              <strong style="color:var(--accent);">Build</strong> purpose from action.
+              ${currentPhase > 1 ? ` You've completed ${arcDone} of ${arcTotal} phases (${arcPct}%).` : ''}
+            </div>
+            <div style="margin-top:10px;height:3px;background:var(--border);border-radius:2px;overflow:hidden;">
+              <div style="height:100%;width:${arcPct}%;background:var(--accent);border-radius:2px;transition:width 0.8s ease;"></div>
+            </div>
+          </div>
+
+          <div class="phase-detail-card">
+            <div class="pd-header">
+              <div class="pd-badge">Phase ${phase.id} of 5</div>
+              <div class="pd-name">${phase.name}</div>
+              <div class="pd-duration">${phase.dur} · Month ${Math.min(monthsIn, 12)} of 12</div>
+            </div>
+            <div class="pd-body">
+              <div class="pd-principle">
+                <div class="pd-principle-label">The Principle</div>
+                <div class="pd-principle-text">"${phase.principle}"</div>
+              </div>
+
+              <div class="pd-section">
+                <div class="pd-section-title">What This Phase Does</div>
+                <div class="pd-text">${phase.desc}</div>
+              </div>
+
+              <div class="pd-section">
+                <div class="pd-section-title">Why It Matters</div>
+                <div class="pd-text">${phase.why}</div>
+              </div>
+
+              ${dailyHtml ? `
+              <div class="pd-section">
+                <div class="pd-section-title">Your Daily Practice</div>
+                ${dailyHtml}
+              </div>` : ''}
+
+              ${mileHtml ? `
+              <div class="pd-section">
+                <div class="pd-section-title">Milestones</div>
+                <div class="milestone-wrap">${mileHtml}</div>
+              </div>` : ''}
+
+              ${allDone ? '<div class="pd-complete-banner">✓ Phase complete. The next phase will unlock automatically based on your start date.</div>' : ''}
+
+              <div class="pd-progress-foot">
+                <span class="pd-foot-icon">⏱</span>
+                <span>Phases advance automatically. Started <strong>${sd}</strong> · Month ${monthsIn} of 12</span>
+              </div>
+            </div>
+          </div>
+        `;
+
+        // Check for phase advance notification
+        const prevPhase = reproLoad('notifiedPhase', 0);
+        if (currentPhase !== prevPhase) {
+          reproSave('notifiedPhase', currentPhase);
+          if (prevPhase > 0) {
+            showReproNotif(`You've entered Phase ${currentPhase} — ${phase.name}`);
+          }
+        }
+
+        document.getElementById('reproBadge').textContent = `🧬 Phase ${currentPhase}`;
+      }
+
+      window.togglePhaseMilestone = function(phaseId, idx) {
+        const milestones = reproLoad('phaseMilestones', {1:[],2:[],3:[],4:[],5:[]});
+        const arr = milestones[phaseId] || [];
+        const pos = arr.indexOf(idx);
+        if (pos === -1) arr.push(idx);
+        else arr.splice(pos, 1);
+        milestones[phaseId] = arr;
+        reproSave('phaseMilestones', milestones);
+        renderPhaseMap();
+      };
+
+      // ─── DAILY PRACTICES ───
+      function renderDailyPractices() {
+        const today = getToday();
+        const data = reproLoad('dailyPractices', {});
+        if (!data[today]) data[today] = {};
+        const day = data[today];
+
+        const done = DP_KEYS.filter(k => day[k]).length;
+        const total = DP_KEYS.length;
+
+        const circ = 2 * Math.PI * 28;
+        const fill = document.getElementById('dpRingFill');
+        fill.style.strokeDasharray = circ;
+        fill.style.strokeDashoffset = circ * (1 - done / total);
+        document.getElementById('dpRingText').textContent = done + '/' + total;
+
+        const list = document.getElementById('dpList');
+        list.innerHTML = '';
+        DP_KEYS.forEach((k, i) => {
+          const isDone = day[k] || false;
+          const lbl = DP_LABELS[i];
+          const row = document.createElement('div');
+          row.className = 'd-row' + (isDone ? ' sealed' : '');
+          const dotColor = lbl[2].replace('dot-', '');
+          const colorMap = { accent: 'var(--accent)', warm: 'var(--warm)', cool: 'var(--cool)', danger: 'var(--danger)', body: 'var(--success)', mind: 'var(--mind-purple)' };
+          row.innerHTML = `<div class="d-check"></div>
+            <div style="flex:1;min-width:0;">
+              <div class="d-text">${lbl[0]}</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:2px;line-height:1.3;">${lbl[3] || ''}</div>
+            </div>
+            <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-right:8px;flex-shrink:0;">${lbl[1]}</div>`;
+          const check = row.querySelector('.d-check');
+          check.style.borderColor = colorMap[dotColor] || 'var(--border)';
+          check.onclick = () => {
+            day[k] = !day[k];
+            data[today] = day;
+            reproSave('dailyPractices', data);
+            renderDailyPractices();
+            updateReproStreak();
+            if (DP_KEYS.every(kk => day[kk])) {
+              for(let i=0;i<30;i++) {
+                const p = document.createElement('div'); p.className = 'particle';
+                p.style.left = Math.random()*100+'%'; p.style.animationDelay = Math.random()*0.3+'s';
+                p.style.background = 'var(--accent)'; p.style.boxShadow = '0 0 12px var(--accent)';
+                document.getElementById('particlesLayer').appendChild(p);
+                setTimeout(() => { if(p.parentNode) p.parentNode.removeChild(p); }, 3500);
+              }
+            }
+          };
+          if (isDone) {
+            check.style.backgroundColor = colorMap[dotColor];
+            check.style.borderColor = colorMap[dotColor];
+            check.style.boxShadow = `0 0 8px ${colorMap[dotColor]}`;
+            row.style.background = (colorMap[dotColor] || '').replace(')', ', 0.06)').replace('rgb', 'rgba');
+          }
+          list.appendChild(row);
+        });
+
+        // Update streak display
+        updateReproStreak();
+
+        // Update ring badge
+        const ringBadge = document.getElementById('ringReproBadge');
+        if (ringBadge) {
+          ringBadge.textContent = done === total ? '🧬 ' + done + '/' + total + ' — All clear' : '🧬 ' + done + '/' + total;
+        }
+      }
+
+      function updateReproStreak() {
+        const today = getToday();
+        const data = reproLoad('dailyPractices', {});
+        const day = data[today] || {};
+        const done = DP_KEYS.filter(k => day[k]).length;
+        const total = DP_KEYS.length;
+
+        let streak = reproLoad('dailyStreak', 0);
+        const lastDate = reproLoad('lastDailyDate', '');
+
+        if (total > 0 && done === total && lastDate !== today) {
+          streak++;
+          reproSave('dailyStreak', streak);
+          reproSave('lastDailyDate', today);
+        } else if (total > 0 && done < total && lastDate === today) {
+          streak = Math.max(0, streak - 1);
+          reproSave('dailyStreak', streak);
+          reproSave('lastDailyDate', 'broken');
+        }
+
+        document.getElementById('dpStreak').textContent = streak > 0 ? `🔥 ${streak} day streak` : 'Start your streak today';
+      }
+
+      // ─── SUBCONSCIOUS ───
+      let sleepAffIdx = 0;
+      function renderSubconscious() {
+        const idx = reproLoad('sleepAffirmationIdx', 0);
+        sleepAffIdx = idx;
+        const affEl = document.getElementById('sleepAff');
+        if (affEl) {
+          affEl.textContent = SLEEP_AFFIRMATIONS[sleepAffIdx];
+          affEl.className = 'sleep-aff visible';
+          affEl.onclick = () => {
+            affEl.className = 'sleep-aff fade';
+            setTimeout(() => {
+              sleepAffIdx = (sleepAffIdx + 1) % SLEEP_AFFIRMATIONS.length;
+              affEl.textContent = SLEEP_AFFIRMATIONS[sleepAffIdx];
+              affEl.className = 'sleep-aff visible';
+              reproSave('sleepAffirmationIdx', sleepAffIdx);
+            }, 400);
+          };
+        }
+
+        // Render gratitude log
+        renderGratitudeLog();
+      }
+
+      function renderGratitudeLog() {
+        const log = document.getElementById('gratLog');
+        if (!log) return;
+        const entries = reproLoad('gratitude', []);
+        log.innerHTML = entries.slice().reverse().slice(0, 10).map(e =>
+          `<div class="grat-entry">
+            <div class="grat-entry-date">${esc(e.date)}</div>
+            <div>${esc(e.thing1)}</div>
+            ${e.thing2 ? '<div>'+esc(e.thing2)+'</div>' : ''}
+            ${e.thing3 ? '<div>'+esc(e.thing3)+'</div>' : ''}
+          </div>`
+        ).join('') || '<div style="color:var(--muted);font-size:12px;">No entries yet. Start logging your gratitude.</div>';
+      }
+
+      document.getElementById('btnGratSave')?.addEventListener('click', () => {
+        const t1 = document.getElementById('grat1').value.trim();
+        const t2 = document.getElementById('grat2').value.trim();
+        const t3 = document.getElementById('grat3').value.trim();
+        if (!t1 && !t2 && !t3) return;
+        const entries = reproLoad('gratitude', []);
+        entries.push({ date: getToday(), thing1: t1, thing2: t2, thing3: t3 });
+        reproSave('gratitude', entries);
+        document.getElementById('grat1').value = '';
+        document.getElementById('grat2').value = '';
+        document.getElementById('grat3').value = '';
+        renderGratitudeLog();
+      });
+
+      // Visualization timer
+      document.getElementById('btnStartVisualization')?.addEventListener('click', () => {
+        if (vizTimer) { clearInterval(vizTimer); vizTimer = null; }
+        let sec = 300;
+        const disp = document.getElementById('vizTimerDisplay');
+        disp.style.display = 'block';
+        disp.textContent = '5:00';
+        const btn = document.getElementById('btnStartVisualization');
+        btn.textContent = 'Running...';
+        btn.disabled = true;
+        vizTimer = setInterval(() => {
+          sec--;
+          disp.textContent = Math.floor(sec/60) + ':' + String(sec%60).padStart(2,'0');
+          if (sec <= 0) {
+            clearInterval(vizTimer); vizTimer = null;
+            disp.textContent = '✓ Done';
+            btn.textContent = 'Start 5-Min Timer';
+            btn.disabled = false;
+            const log = reproLoad('visualizationLog', []);
+            log.push({ date: getToday() });
+            reproSave('visualizationLog', log);
+          }
+        }, 1000);
+      });
+
+      // ─── THERAPY ───
+      function renderTherapy() {
+        const log = document.getElementById('thLog');
+        if (!log) return;
+        const entries = reproLoad('therapyLog', []);
+        log.innerHTML = entries.slice().reverse().slice(0, 20).map((e, i) =>
+          `<div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin-bottom:8px;">
+            <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:4px;">${esc(e.date)}</div>
+            <div style="font-size:13px;font-weight:600;margin-bottom:4px;">${esc(e.trigger)}</div>
+            ${e.belief ? '<div style="font-size:12px;color:var(--text-secondary);"><strong>Belief:</strong> '+esc(e.belief)+'</div>' : ''}
+            ${e.nextTime ? '<div style="font-size:12px;color:var(--accent);margin-top:4px;"><strong>Next time:</strong> '+esc(e.nextTime)+'</div>' : ''}
+          </div>`
+        ).join('') || '<div style="color:var(--muted);font-size:12px;">No reflections yet. Complete one every Sunday.</div>';
+      }
+
+      document.getElementById('btnThSave')?.addEventListener('click', () => {
+        const t1 = document.getElementById('th1').value.trim();
+        const t2 = document.getElementById('th2').value.trim();
+        const t3 = document.getElementById('th3').value.trim();
+        const t4 = document.getElementById('th4').value.trim();
+        const t5 = document.getElementById('th5').value.trim();
+        if (!t1) { document.getElementById('th1').style.borderColor = 'var(--danger)'; setTimeout(()=>document.getElementById('th1').style.borderColor='',600); return; }
+        const entries = reproLoad('therapyLog', []);
+        entries.push({ date: getToday(), trigger: t1, why: t2, belief: t3, evidence: t4, nextTime: t5 });
+        reproSave('therapyLog', entries);
+        ['th1','th2','th3','th4','th5'].forEach(id => document.getElementById(id).value = '');
+        renderTherapy();
+      });
+
+      // Flip card
+      document.getElementById('flipRedefine')?.addEventListener('click', function() {
+        this.classList.toggle('flipped');
+      });
+
+      // ─── PARENT WOUNDS ───
+      let parentSaveTimer = null;
+      function renderParentWounds() {
+        let versions = reproLoad('parentLetters', []);
+        // Migrate old format { letter1, letter2 } to versioned array
+        if (!Array.isArray(versions)) {
+          const old = versions;
+          if (old.letter1 || old.letter2) {
+            versions = [{ id: 1, date: new Date().toISOString().slice(0,10), letter1: old.letter1 || '', letter2: old.letter2 || '' }];
+            reproSave('parentLetters', versions);
+          } else {
+            versions = [];
+          }
+        }
+
+        const l1 = document.getElementById('parentLetter1');
+        const l2 = document.getElementById('parentLetter2');
+        if (!l1) return;
+
+        // Load latest version into textareas (only on initial render)
+        if (!l1.dataset.reproInit && versions.length > 0) {
+          const latest = versions[versions.length - 1];
+          l1.value = latest.letter1 || '';
+          l2.value = latest.letter2 || '';
+        }
+        l1.dataset.reproInit = '1';
+        l2.dataset.reproInit = '1';
+
+        const doSave = () => {
+          const v1 = l1.value.trim();
+          const v2 = l2.value.trim();
+          if (!v1 && !v2) return;
+          const latest = versions.length > 0 ? versions[versions.length - 1] : null;
+          // Only save if content changed from latest version
+          if (latest && latest.letter1 === v1 && latest.letter2 === v2) return;
+          const newVersion = {
+            id: versions.length > 0 ? Math.max(...versions.map(v => v.id)) + 1 : 1,
+            date: new Date().toISOString().slice(0,10),
+            time: new Date().toTimeString().slice(0,5),
+            letter1: v1,
+            letter2: v2
+          };
+          versions.push(newVersion);
+          reproSave('parentLetters', versions);
+          renderParentLookBook();
+        };
+
+        l1.oninput = () => {
+          clearTimeout(parentSaveTimer);
+          parentSaveTimer = setTimeout(doSave, 1500);
+          const el = document.getElementById('parentSaved1');
+          el.textContent = 'Unsaved changes…';
+          el.classList.add('show');
+        };
+        l2.oninput = () => {
+          clearTimeout(parentSaveTimer);
+          parentSaveTimer = setTimeout(doSave, 1500);
+          const el = document.getElementById('parentSaved2');
+          el.textContent = 'Unsaved changes…';
+          el.classList.add('show');
+        };
+
+        // "Save This Version" button
+        const btnSave = document.getElementById('btnSaveParentVersion');
+        if (btnSave) {
+          btnSave.onclick = () => {
+            clearTimeout(parentSaveTimer);
+            const v1 = l1.value.trim();
+            const v2 = l2.value.trim();
+            if (!v1 && !v2) { alert('Write something before saving.'); return; }
+            const latest = versions.length > 0 ? versions[versions.length - 1] : null;
+            if (latest && latest.letter1 === v1 && latest.letter2 === v2) {
+              const el = document.getElementById('parentSaved1');
+              el.textContent = '✓ Same as last version';
+              el.classList.add('show');
+              setTimeout(() => el.classList.remove('show'), 2000);
+              return;
+            }
+            const newVersion = {
+              id: versions.length > 0 ? Math.max(...versions.map(v => v.id)) + 1 : 1,
+              date: new Date().toISOString().slice(0,10),
+              time: new Date().toTimeString().slice(0,5),
+              letter1: v1,
+              letter2: v2
+            };
+            versions.push(newVersion);
+            reproSave('parentLetters', versions);
+            const el = document.getElementById('parentSaved1');
+            el.textContent = '✓ Version saved!';
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 3000);
+            renderParentLookBook();
+          };
+        }
+
+        // "Clear All Versions" button
+        const btnClear = document.getElementById('btnClearParentVersions');
+        if (btnClear) {
+          btnClear.onclick = () => {
+            if (versions.length === 0) return;
+            if (!confirm('⚠️ This will permanently delete ALL parent letter versions (both local and cloud). This cannot be undone. Continue?')) return;
+            versions = [];
+            reproSave('parentLetters', versions);
+            l1.value = '';
+            l2.value = '';
+            const el = document.getElementById('parentSaved1');
+            el.textContent = '✓ Cleared';
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 2000);
+            renderParentLookBook();
+          };
+        }
+
+        renderParentLookBook();
+      }
+
+      function renderParentLookBook() {
+        const versions = reproLoad('parentLetters', []);
+        if (!Array.isArray(versions)) return;
+        const container = document.getElementById('parentLookBookEntries');
+        if (!container) return;
+
+        if (versions.length === 0) {
+          container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:12px;">No versions saved yet. Write your letters and save to start tracking your evolution.</div>';
+          return;
+        }
+
+        let html = '';
+        // Show newest first
+        for (let i = versions.length - 1; i >= 0; i--) {
+          const v = versions[i];
+          const isLatest = i === versions.length - 1;
+          html += `
+            <div class="sub-card${isLatest?' open':''}" style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:10px;">
+              <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;" onclick="this.parentElement.classList.toggle('open')">
+                <span style="font-size:14px;flex-shrink:0;">${isLatest?'🟢':'📄'}</span>
+                <span style="font-size:12px;font-weight:600;flex:1;">
+                  Version ${v.id}
+                  ${isLatest?'<span style="color:var(--accent);font-size:10px;margin-left:6px;">Latest</span>':''}
+                </span>
+                <span style="font-size:10px;color:var(--muted);font-family:monospace;">${esc(v.date||'')} ${esc(v.time||'')}</span>
+                <span style="font-size:14px;color:var(--muted);font-family:monospace;" class="sub-card-toggle">+</span>
+              </div>
+              <div class="sub-card-body" style="padding:0 16px 16px;">
+                ${v.letter1 ? `<div style="margin-bottom:10px;"><div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Letter 1 — Unfiltered</div><div style="font-size:12px;color:var(--text-secondary);line-height:1.6;white-space:pre-wrap;background:rgba(255,255,255,0.02);border-radius:8px;padding:12px;">${esc(v.letter1)}</div></div>` : ''}
+                ${v.letter2 ? `<div><div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Letter 2 — Gratitude</div><div style="font-size:12px;color:var(--text-secondary);line-height:1.6;white-space:pre-wrap;background:rgba(255,255,255,0.02);border-radius:8px;padding:12px;">${esc(v.letter2)}</div></div>` : ''}
+                <div style="margin-top:10px;display:flex;gap:6px;">
+                  <button class="btn" style="font-size:10px;padding:5px 12px;" onclick="copyParentVersion(${v.id})">📋 Copy Both</button>
+                  <button class="btn" style="font-size:10px;padding:5px 12px;color:var(--danger);border-color:rgba(255,95,95,0.2);" onclick="deleteParentVersion(${v.id})">✕ Delete</button>
+                </div>
+              </div>
+            </div>`;
+        }
+        container.innerHTML = html;
+      }
+
+      window.copyParentVersion = function(id) {
+        const versions = reproLoad('parentLetters', []);
+        if (!Array.isArray(versions)) return;
+        const v = versions.find(x => x.id === id);
+        if (!v) return;
+        const text = `=== Letter 1 (Unfiltered) ===\n${v.letter1||''}\n\n=== Letter 2 (Gratitude) ===\n${v.letter2||''}\n\n— Version ${v.id}, ${v.date} ${v.time||''}`;
+        navigator.clipboard.writeText(text).catch(() => {});
+        const el = document.getElementById('parentSaved1');
+        if (el) { el.textContent = 'Copied ✓'; el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 2000); }
+      };
+
+      window.deleteParentVersion = function(id) {
+        if (!confirm('Delete this version? This cannot be undone.')) return;
+        let versions = reproLoad('parentLetters', []);
+        if (!Array.isArray(versions)) return;
+        versions = versions.filter(v => v.id !== id);
+        reproSave('parentLetters', versions);
+        renderParentLookBook();
+        // Also reload textareas if the latest was deleted
+        const l1 = document.getElementById('parentLetter1');
+        const l2 = document.getElementById('parentLetter2');
+        if (versions.length > 0) {
+          const latest = versions[versions.length - 1];
+          l1.value = latest.letter1 || '';
+          l2.value = latest.letter2 || '';
+        } else {
+          l1.value = '';
+          l2.value = '';
+        }
+      };
+
+      window.copyParentLetter = function(n) {
+        const text = document.getElementById('parentLetter' + n).value;
+        navigator.clipboard.writeText(text).catch(() => {});
+        const el = document.getElementById('parentSaved' + n);
+        el.textContent = 'Copied ✓';
+        el.classList.add('show');
+        setTimeout(() => { el.textContent = 'Saved to cloud'; el.classList.remove('show'); }, 2000);
+      };
+
+      // Also trigger look book re-render when cloud sync updates data
+      // (renderParentWounds already calls renderParentLookBook)
+
+      // ─── IDENTITY ───
+      function renderIdentity() {
+        const sealed = reproLoad('identitySealed', [false,false,false,false,false,false,false]);
+        const grid = document.getElementById('identityGrid');
+        grid.innerHTML = '';
+        IDENTITY_STATEMENTS.forEach((s, i) => {
+          const card = document.createElement('div');
+          card.className = 'identity-card' + (sealed[i] ? ' sealed' : '');
+          card.innerHTML = `<div class="id-check">${sealed[i]?'✓':''}</div><div class="id-text">${s}</div>`;
+          card.onclick = () => {
+            sealed[i] = !sealed[i];
+            reproSave('identitySealed', sealed);
+            renderIdentity();
+          };
+          grid.appendChild(card);
+        });
+
+        // Monthly purpose
+        const now = new Date();
+        const monthKey = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+        const lastPrompt = reproLoad('lastMonthPrompt', '');
+        const mpForm = document.getElementById('monthlyPurposeForm');
+        const mpLog = document.getElementById('mpLog');
+
+        if (lastPrompt !== monthKey) {
+          mpForm.style.display = 'block';
+        } else {
+          mpForm.style.display = 'none';
+        }
+
+        const entries = reproLoad('monthlyPurpose', []);
+        mpLog.innerHTML = entries.slice().reverse().slice(0, 12).map(e =>
+          `<div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin-bottom:8px;">
+            <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;">${esc(e.date)}</div>
+            ${e.q1 ? '<div style="font-size:13px;margin-top:4px;"><strong>Build:</strong> '+esc(e.q1)+'</div>' : ''}
+            ${e.q2 ? '<div style="font-size:13px;"><strong>Become:</strong> '+esc(e.q2)+'</div>' : ''}
+            ${e.q3 ? '<div style="font-size:13px;"><strong>Time:</strong> '+esc(e.q3)+'</div>' : ''}
+          </div>`
+        ).join('') || '<div style="color:var(--muted);font-size:12px;">No monthly reflections yet.</div>';
+      }
+
+      document.getElementById('btnMpSave')?.addEventListener('click', () => {
+        const q1 = document.getElementById('mp1').value.trim();
+        const q2 = document.getElementById('mp2').value.trim();
+        const q3 = document.getElementById('mp3').value.trim();
+        if (!q1 && !q2 && !q3) return;
+        const entries = reproLoad('monthlyPurpose', []);
+        const now = new Date();
+        const monthKey = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+        entries.push({ date: monthKey, q1, q2, q3 });
+        reproSave('monthlyPurpose', entries);
+        reproSave('lastMonthPrompt', monthKey);
+        ['mp1','mp2','mp3'].forEach(id => document.getElementById(id).value = '');
+        renderIdentity();
+      });
+
+      // ─── REPROGRAM MAIN ───
+      function renderReprogram() {
+        initReprogramTabs();
+        renderPhaseMap();
+        renderDailyPractices();
+        renderTherapy();
+        renderIdentity();
+        // Subconscious and parent wounds are rendered on tab switch
+      }
+
+      function showReproNotif(msg) {
+        let el = document.getElementById('reproNotif');
+        if (!el) {
+          el = document.createElement('div');
+          el.id = 'reproNotif';
+          el.className = 'repro-notif';
+          document.body.appendChild(el);
+        }
+        el.textContent = msg;
+        el.classList.add('show');
+        setTimeout(() => el.classList.remove('show'), 4000);
+      }
+
+      // ─── END REPROGRAM ENGINE ───
 
       // Ritual Engine
-      let rTimer, rSec = 0;
+      let rTimer, rSec = 0, rPhase = 0;
       function formatT(s) { return `${String(Math.floor(s/60)).padStart(2,'0')}<span class="colon">:</span>${String(s%60).padStart(2,'0')}`; }
-      function runTimer() { rSec--; document.getElementById('rTimer').innerHTML = formatT(rSec); if(rSec<=0) clearInterval(rTimer); }
+      function runTimer() {
+        rSec--;
+        document.getElementById('rTimer').innerHTML = formatT(Math.max(0, rSec));
+        if(rSec <= 0) { clearInterval(rTimer); advancePhase(); }
+      }
+      function updatePhaseSteps(p) {
+        document.querySelectorAll('.phase-step').forEach(el => {
+          const n = parseInt(el.dataset.phase);
+          el.classList.toggle('active', n === p);
+          el.classList.toggle('done', n < p);
+        });
+      }
+      function advancePhase() {
+        if(rPhase < 5) {
+          if(rPhase === 1) setRitualPhase2();
+          else if(rPhase === 2) setRitualPhase3();
+          else if(rPhase === 3) setRitualPhase4();
+          else if(rPhase === 4) setRitualPhase5();
+          else if(rPhase === 5) finishRitual();
+        }
+      }
       function setRitualPhase(p, dur) {
+        rPhase = p;
         document.querySelectorAll('.ritual-phase').forEach(e => e.classList.remove('active'));
         document.getElementById('rPhase'+p).classList.add('active');
+        updatePhaseSteps(p);
         rSec = dur; document.getElementById('rTimer').innerHTML = formatT(rSec);
-        clearInterval(rTimer); rTimer = setInterval(runTimer, 1000);
+        clearInterval(rTimer); if(dur > 0) rTimer = setInterval(runTimer, 1000);
       }
 
       document.getElementById('btnWaterCheck').onclick = () => {
@@ -871,16 +2363,18 @@
         
         const c = document.getElementById('breathCircle'), t = document.getElementById('breathText'), cue = document.getElementById('breathCue');
         let cycles = 0;
+        const INHALE = 4000, HOLD = 4000, EXHALE = 4000, REST = 2000;
         function cycle() {
           if(cycles>=6) { 
-            c.className = 'breath-circle'; t.textContent = 'COMPLETE'; cue.textContent = '';
-            setTimeout(() => setRitualPhase2(), 2000); return; 
+            c.className = 'breath-circle'; t.textContent = '✓ Body Ready'; cue.textContent = '';
+            setTimeout(() => setRitualPhase2(), 1500); return; 
           }
-          cycles++; document.getElementById('breathCount').textContent = `Cycles: ${cycles} / 6`;
-          c.className = 'breath-circle inhale'; t.textContent = 'INHALE'; cue.textContent = 'I call it in.';
-          setTimeout(() => { c.className = 'breath-circle hold'; t.textContent = 'HOLD'; cue.textContent = 'I already am.'; }, 4000);
-          setTimeout(() => { c.className = 'breath-circle exhale'; t.textContent = 'EXHALE'; cue.textContent = 'I let go.'; }, 8000);
-          setTimeout(cycle, 14000);
+          cycles++; document.getElementById('breathCount').textContent = `${cycles} / 6`;
+          c.className = 'breath-circle inhale'; t.textContent = 'INHALE'; cue.textContent = 'I breathe in energy.';
+          setTimeout(() => { c.className = 'breath-circle hold'; t.textContent = 'HOLD'; cue.textContent = 'I am calm.'; }, INHALE);
+          setTimeout(() => { c.className = 'breath-circle exhale'; t.textContent = 'EXHALE'; cue.textContent = 'I feel lighter.'; }, INHALE + HOLD);
+          setTimeout(() => { c.className = 'breath-circle'; t.textContent = 'REST'; cue.textContent = 'I am present.'; }, INHALE + HOLD + EXHALE);
+          setTimeout(cycle, INHALE + HOLD + EXHALE + REST);
         }
         cycle();
       };
@@ -888,13 +2382,16 @@
       function setRitualPhase2() {
         setRitualPhase(2, 180);
         const affs = [
-          "I already have infinite value. Nothing to prove.",
-          "I am the 0.1%. My bloodline changes here.",
-          "I don't chase. I align. I don't hope. I become.",
-          "My presence is enough. Wealth flows to the man I already am.",
-          "I respect myself deeply. I finish what I start.",
-          "I operate from strength, kindness, and precision.",
-          "I am already seen as rare, trusted deeply."
+          "I am an early riser. I create my day before the world begins.",
+          "I honor my body. I become stronger through consistent training.",
+          "I nourish my mind. Every day I grow wiser and more capable.",
+          "I begin each morning with meditation, affirmations, and reading because they shape who I become.",
+          "I finish what I start. Consistency is part of my identity.",
+          "I create value through focused work and disciplined action.",
+          "I lead with calm confidence, kindness, and integrity.",
+          "My standards are high because I respect myself deeply.",
+          "I remain energized throughout the day. My routines support lasting focus and vitality.",
+          "Every action I take today moves me toward the life I am creating."
         ];
         const con = document.getElementById('affirmationsContainer'); con.innerHTML = '';
         affs.forEach((a, i) => {
@@ -905,9 +2402,18 @@
           const b = document.getElementById('btnPhase2'); b.style.opacity = 1; b.style.pointerEvents = 'all';
           let taps = 0;
           b.onclick = () => {
-            taps++; document.body.style.transform = 'translateY(4px)'; setTimeout(()=>document.body.style.transform='none', 100);
-            b.textContent = `TAPS: ${taps} / 3`;
-            if(taps===3) { b.textContent = "ANCHORED. I AM THE 0.1%."; setTimeout(() => setRitualPhase3(), 1500); }
+            taps++; 
+            b.classList.add('pulse');
+            document.body.style.transform = 'translateY(4px)'; 
+            setTimeout(() => {
+              document.body.style.transform = 'none';
+              if (taps < 3) b.classList.remove('pulse');
+            }, 100);
+            b.textContent = `${taps} / 3`;
+            if(taps===3) {
+              b.textContent = "Identity Anchored"; b.style.pointerEvents = 'none';
+              clearInterval(rTimer); setTimeout(() => setRitualPhase3(), 1500);
+            }
           };
         }, affs.length * 8000);
       }
@@ -915,37 +2421,82 @@
       function setRitualPhase3() {
         setRitualPhase(3, 120);
         const scenes = [
-          { icon: '👑', t: "Walking into any room with calm, magnetic authority." },
-          { icon: '🌳', t: "Your family looking at you with deep pride and security." },
-          { icon: '⚡', t: "Operating at elite level — creating massive value." }
+          { icon: '🏋️', t: "You finish your workout. You feel healthy. Strong. Disciplined." },
+          { icon: '💻', t: "You complete your most important work with deep focus. You create meaningful value." },
+          { icon: '❤️', t: "Your family smiles because they see your growth, peace, and consistency. You feel gratitude." }
         ];
         const con = document.getElementById('scenesContainer'); con.innerHTML = '';
         let felt = 0;
         scenes.forEach((s, i) => {
           const el = document.createElement('div'); el.className = 'scene-card';
-          el.innerHTML = `<div class="scene-header">${s.icon}</div><div class="scene-desc">${s.t}</div><button class="btn btn-feel">FEEL IT</button>`;
+          el.innerHTML = `<div class="scene-header">${s.icon}</div><div class="scene-desc">${s.t}</div><button class="btn btn-feel">I FEEL THIS</button>`;
           con.appendChild(el); setTimeout(() => el.classList.add('visible'), i * 2000);
           el.querySelector('.btn-feel').onclick = () => {
             el.classList.add('felt'); felt++; el.querySelector('.btn-feel').style.display='none';
-            if(felt===3) { document.getElementById('btnPhase3').style.opacity = 1; document.getElementById('btnPhase3').style.pointerEvents = 'all'; }
+            if(felt===3) { 
+              const b3 = document.getElementById('btnPhase3');
+              b3.textContent = "Future Integrated";
+              b3.style.opacity = 1; 
+              b3.style.pointerEvents = 'all'; 
+              b3.classList.add('pulse');
+            }
           };
         });
-        document.getElementById('btnPhase3').onclick = () => setRitualPhase4();
+        document.getElementById('btnPhase3').onclick = () => {
+          document.getElementById('btnPhase3').classList.remove('pulse');
+          setRitualPhase4();
+        };
       }
 
       function setRitualPhase4() {
         setRitualPhase(4, 60);
-        document.getElementById('btnPhase4').onclick = () => {
-          if(document.getElementById('commitInput').value.trim()) setRitualPhase5();
-        };
+        const inp1 = document.getElementById('commitInput'); inp1.value = '';
+        const inp2 = document.getElementById('focusInput'); inp2.value = '';
+        const btn = document.getElementById('btnPhase4');
+        btn.textContent = "SEAL TODAY";
+        btn.disabled = false;
+        btn.style.pointerEvents = 'all';
+
+        btn.onclick = () => commitPhase4();
+        const handleKey = (e) => { if(e.key === 'Enter') commitPhase4(); };
+        inp1.onkeydown = handleKey;
+        inp2.onkeydown = handleKey;
+
+        function commitPhase4() {
+          let valid = true;
+          if(!inp1.value.trim()) {
+            valid = false;
+            inp1.style.borderColor = 'var(--danger)';
+            setTimeout(() => inp1.style.borderColor = '', 600);
+          }
+          if(!inp2.value.trim()) {
+            valid = false;
+            inp2.style.borderColor = 'var(--danger)';
+            setTimeout(() => inp2.style.borderColor = '', 600);
+          }
+          if(valid) {
+            btn.textContent = "✓ Commitment Made";
+            btn.disabled = true;
+            btn.style.pointerEvents = 'none';
+            clearInterval(rTimer);
+            setTimeout(() => setRitualPhase5(), 1500);
+          }
+        }
       }
 
       function setRitualPhase5() {
         setRitualPhase(5, 300);
+        document.getElementById('btnPhase5').style.display = 'none';
+        document.getElementById('finalSeal').style.opacity = '0';
+        const ring = document.querySelector('.silent-ring');
+        const hint = document.createElement('div'); hint.className = 'silent-ring-hint'; hint.textContent = 'Click to seal';
+        ring.appendChild(hint);
         setTimeout(() => {
+          ring.classList.add('hint-visible');
           document.getElementById('finalSeal').style.opacity = 1;
           document.getElementById('btnPhase5').style.display = 'inline-block';
-        }, 15000); // Demo sped up
+        }, 12000);
+        ring.onclick = () => { if(!ring.classList.contains('clicked')) { ring.classList.add('clicked'); finishRitual(); } };
         document.getElementById('btnPhase5').onclick = () => finishRitual();
       }
 
@@ -962,7 +2513,7 @@
 
       // Boot
       updateRing(); setInterval(updateRing, 60000);
-      renderPersonal(); renderCore(); renderCorporate();
+      renderPersonal(); renderCore(); renderCorporate(); renderReprogram();
       setTimeout(() => setMode(currentMode), 100);
       
       if(currentMode === 'ritual') setRitualPhase(1, 120);
@@ -981,7 +2532,7 @@
             }
           }
           if (changed) {
-            renderPersonal(); renderCore(); renderCorporate();
+      renderPersonal(); renderCore(); renderCorporate(); renderReprogram();
           }
         } else if (!cloudSyncActive) {
           // Cloud is empty, push local state to cloud
