@@ -108,6 +108,20 @@
 
     /* Day Ring Container */
     .day-ring-container { display: flex; justify-content: center; align-items: center; gap: 26px; margin-bottom: 32px; flex-wrap: wrap; }
+
+    .life-affirmation {
+      text-align: center; padding: 12px 16px; margin-bottom: 20px;
+      border-radius: 10px; background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+    }
+    .life-affirmation .la-line {
+      font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.15em;
+      text-transform: uppercase; margin-bottom: 4px;
+    }
+    .life-affirmation .la-cat { color: var(--accent); font-weight: 600; }
+    .life-affirmation .la-divider { color: var(--muted); margin: 0 8px; }
+    .life-affirmation .la-text { font-size: 11px; color: var(--text-tertiary); font-style: italic; }
+    body.mode-ritual .life-affirmation, body.mode-confidence .life-affirmation { display: none; }
     .day-ring-left { position: relative; width: 144px; height: 144px; display: flex; justify-content: center; align-items: center; flex-shrink: 0; }
     .day-ring-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
     .day-ring-track { fill: none; stroke: rgba(255,255,255,0.06); stroke-width: 6; }
@@ -762,6 +776,17 @@
           <div id="ringReproBadge" style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);margin-top:4px;min-height:14px;"></div>
         </div>
       </div>
+    </div>
+
+    <div class="life-affirmation">
+      <div class="la-line">
+        <span class="la-cat">Family</span>
+        <span class="la-divider">·</span>
+        <span class="la-cat">Health</span>
+        <span class="la-divider">·</span>
+        <span class="la-cat">Career</span>
+      </div>
+      <div class="la-text">Every action I take feeds one of these.</div>
     </div>
 
     <!-- PERSONAL MODE (Only Custom Goals) -->
