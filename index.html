@@ -1180,10 +1180,12 @@
           <div class="confidence-eyebrow">KAEL VOSS</div>
           <div class="confidence-title">The Confidence Ritual</div>
           <div class="confidence-maxim">
-            <div>Logic <span style="color:var(--muted);">slows</span> movement.</div>
-            <div>Logic <span style="color:var(--muted);">waits</span> for certainty.</div>
-            <div style="color:var(--accent); font-size: 22px; margin-top: 8px;">
-              Strategic delusion <span style="color:#fff;">speeds up</span> action.
+            <div style="font-size:22px;font-weight:700;color:#fff;margin-bottom:12px;">
+              Kael Voss creates opportunities. He creates markets.
+            </div>
+            <div style="font-size:13px;line-height:1.8;color:var(--text-secondary);">
+              He moves with absolute conviction, knowing that certainty grows through action. 
+              Every decisive step strengthens confidence, and every challenge expands his capability.
             </div>
           </div>
         </div>
@@ -1198,8 +1200,7 @@
             </div>
             <button class="btn" id="btnCPlay" onclick="toggleConfidenceSong()">▶ Play</button>
           </div>
-          <audio id="cAudio" style="display:none;"></audio>
-          <div style="font-size:10px;color:var(--muted);margin-top:6px;">Opens in YouTube (browser can't embed). Pause it after step 2.</div>
+          <div id="cYouTubePlayer" style="margin-top:10px;border-radius:8px;overflow:hidden;display:none;"></div>
         </div>
 
         <!-- Ritual Flow -->
@@ -1208,10 +1209,11 @@
           <div class="c-step-content">
             <div class="c-step-title">You are Kael Voss.</div>
             <div class="c-step-text">
-              Your brain is wired to protect you — it scans for threats, overestimates risk, and waits until every variable is certain. 
-              But certainty never arrives. <strong>Kael Voss doesn't chase opportunities. He creates markets.</strong> He doesn't wait for confidence to show up — he acts first, and the feeling follows. 
-              This isn't denial. It's <em>strategic delusion</em> — choosing to believe in your capability before the evidence arrives, so the evidence has a chance to appear. 
-              <strong>Kael Voss shapes reality. He doesn't wait for the path to clear — he builds it. By the end of this ritual, you are him.</strong>
+              <p><strong>Kael Voss creates opportunities. He creates markets.</strong> He moves with absolute conviction, knowing that certainty grows through action. Every decisive step strengthens confidence, and every challenge expands his capability.</p>
+              <p style="margin-top:12px;">Kael Voss is an exceptionally articulate communicator. His words are precise, calm, and influential. He speaks with clarity, purpose, and authority. Every conversation earns trust. Every presentation commands attention. Every negotiation creates value. His voice carries conviction, and his presence elevates every room he enters.</p>
+              <p style="margin-top:12px;">This is <strong>strategic certainty</strong> — the conscious decision to embody limitless capability before the results appear, allowing reality to align with vision. Every thought, every decision, and every action reinforces the identity of a world-class builder.</p>
+              <p style="margin-top:12px;">Kael Voss is a focused operating state that activates the moment work begins. A single intentional switch brings him forward instantly. His posture aligns, his mind sharpens, his communication becomes effortless, and execution flows with precision. Every work session begins in this state, and every achievement strengthens it further.</p>
+              <p style="margin-top:12px;color:var(--accent);font-weight:600;">Kael Voss builds the path. He shapes reality. He inspires confidence. He creates value at a global scale. Every moment in this ritual strengthens that identity until it becomes instinctive, natural, and effortless.</p>
             </div>
             <button class="btn btn-primary" onclick="advanceConfidence(2)" style="margin-top:12px;">I Understand →</button>
           </div>
@@ -2896,36 +2898,20 @@
 
       // ─── CONFIDENCE RITUAL ───
       const CONFIDENCE_INCANTATIONS = [
-        "Kael Voss doesn't chase opportunities. He creates markets.",
-        "I am Kael Voss. I shape reality before it shapes me.",
-        "Uncertainty is where I build. I move before I feel ready.",
-        "I don't need permission to act. I give myself full authority.",
-        "Failure is data. Every no moves me closer to my yes.",
-        "My conviction is louder than any doubt. My vision is sharper than any fear.",
-        "I am the kind of person who builds billion-dollar companies. That is my identity.",
-        "Strategic delusion is my edge — I believe in my capability before the evidence arrives, so the evidence has a chance to appear.",
-        "I trust myself completely. I can handle whatever happens. I am unstoppable because I start before I'm ready.",
-        "I am Kael Voss. Cool. Sharp. Decisive. I build what others only imagine."
+        "Kael Voss creates opportunities. He creates markets.",
+        "I move with absolute conviction. Certainty grows through action.",
+        "Every decisive step strengthens my confidence. Every challenge expands my capability.",
+        "I am an exceptionally articulate communicator. My words are precise, calm, and influential.",
+        "I speak with clarity, purpose, and authority. Every conversation earns trust. Every presentation commands attention.",
+        "This is strategic certainty — embodying limitless capability before the results appear, allowing reality to align with my vision.",
+        "Kael Voss is my focused operating state. I activate it the moment work begins.",
+        "My posture aligns. My mind sharpens. My communication becomes effortless. Execution flows with precision.",
+        "I build the path. I shape reality. I inspire confidence. I create value at a global scale.",
+        "This identity is now instinctive, natural, and effortless. I am Kael Voss."
       ];
 
       let cStep = 1;
       let cIncTimer = null;
-
-      function advanceConfidence(n) {
-        document.getElementById('cStep' + cStep).style.display = 'none';
-        cStep = n;
-        const next = document.getElementById('cStep' + n);
-        if (next) {
-          next.style.display = 'flex';
-          if (n === 2) startIncantations();
-          if (n === 3) { 
-            stopIncantations();
-            const s = document.getElementById('cAudio');
-            if (!s.paused) s.pause();
-            document.getElementById('btnCPlay').textContent = '▶ Play';
-          }
-        }
-      }
 
       function startIncantations() {
         const container = document.getElementById('cIncantationContainer');
@@ -2960,36 +2946,65 @@
 
       function stopIncantations() { clearInterval(cIncTimer); }
 
-      function setConfidenceSong() {
-        const url = document.getElementById('cSongUrl').value.trim();
-        if (!url) return;
-        const audio = document.getElementById('cAudio');
-        audio.src = url;
-        audio.load();
-        document.getElementById('btnCPlay').disabled = false;
-        document.getElementById('cSongTitle').textContent = url.split('/').pop().split('?')[0].slice(0, 30) || 'Custom Song';
-        document.getElementById('cSongArtist').textContent = 'Ready to play';
-        document.getElementById('btnCPlay').textContent = '▶ Play';
+      // ─── YouTube Player ───
+      const YT_VIDEO_ID = 'gj0Rz-uP4Mk'; // Till I Collapse - Eminem
+      let ytPlayer = null;
+      let ytReady = false;
+
+      function onYouTubeIframeAPIReady() {
+        ytPlayer = new YT.Player('cYouTubePlayer', {
+          height: '200',
+          width: '100%',
+          videoId: YT_VIDEO_ID,
+          playerVars: { playsinline: 1, controls: 1, rel: 0 },
+          events: {
+            onReady: () => { ytReady = true; document.getElementById('btnCPlay').disabled = false; },
+            onStateChange: (e) => {
+              const btn = document.getElementById('btnCPlay');
+              if (e.data === YT.PlayerState.PLAYING) btn.textContent = '⏸ Pause';
+              else if (e.data === YT.PlayerState.ENDED || e.data === YT.PlayerState.PAUSED) btn.textContent = '▶ Play';
+            }
+          }
+        });
       }
 
+      // Load YouTube IFrame API
+      const ytScript = document.createElement('script');
+      ytScript.src = 'https://www.youtube.com/iframe_api';
+      ytScript.async = true;
+      document.head.appendChild(ytScript);
+
       function toggleConfidenceSong() {
-        const audio = document.getElementById('cAudio');
         const btn = document.getElementById('btnCPlay');
-        if (audio.paused) {
-          audio.play().catch(() => {
-            // Try opening in new tab for YouTube links
-            const url = document.getElementById('cSongUrl').value.trim();
-            if (url.includes('youtube') || url.includes('youtu.be')) {
-              window.open(url, '_blank');
-              btn.textContent = '▶ Opened';
-            } else {
-              btn.textContent = '⚠ Unplayable';
-            }
-          });
-          btn.textContent = '⏸ Pause';
-        } else {
-          audio.pause();
+        const container = document.getElementById('cYouTubePlayer');
+        container.style.display = 'block';
+
+        if (!ytPlayer || !ytReady) {
+          btn.textContent = '⏳ Loading...';
+          return;
+        }
+
+        const state = ytPlayer.getPlayerState();
+        if (state === YT.PlayerState.PLAYING) {
+          ytPlayer.pauseVideo();
           btn.textContent = '▶ Play';
+        } else {
+          ytPlayer.playVideo();
+          btn.textContent = '⏸ Pause';
+        }
+      }
+
+      function advanceConfidence(n) {
+        document.getElementById('cStep' + cStep).style.display = 'none';
+        cStep = n;
+        const next = document.getElementById('cStep' + n);
+        if (next) {
+          next.style.display = 'flex';
+          if (n === 2) startIncantations();
+          if (n === 3) {
+            stopIncantations();
+            if (ytPlayer && ytReady) { ytPlayer.pauseVideo(); document.getElementById('btnCPlay').textContent = '▶ Play'; }
+          }
         }
       }
 
