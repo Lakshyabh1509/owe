@@ -732,7 +732,7 @@
           <div class="mode-pill" data-mode="core">CORE<span class="mode-pill-sub" id="coreBadge">🛡️ 0</span></div>
           <div class="mode-pill" data-mode="corporate">CORPORATE<span class="mode-pill-sub" id="cBadge">📊 0%</span></div>
           <div class="mode-pill" data-mode="reprogram">REPROGRAM<span class="mode-pill-sub" id="reproBadge">🧬 Phase —</span></div>
-          <div class="mode-pill" data-mode="confidence">CONFIDENCE<span class="mode-pill-sub">⚡ RITUAL</span></div>
+          <div class="mode-pill" data-mode="confidence">CONFIDENCE<span class="mode-pill-sub">⚡ KAEL VOSS</span></div>
           <div class="mode-pill" data-mode="ritual">RITUAL<span class="mode-pill-sub">✨ SEAL</span></div>
         </div>
       </div>
@@ -1177,7 +1177,7 @@
     <div id="viewConfidence" class="view-section">
       <div class="confidence-container">
         <div class="confidence-hero">
-          <div class="confidence-eyebrow">FORGE · THE VISIONARY</div>
+          <div class="confidence-eyebrow">KAEL VOSS</div>
           <div class="confidence-title">The Confidence Ritual</div>
           <div class="confidence-maxim">
             <div>Logic <span style="color:var(--muted);">slows</span> movement.</div>
@@ -1206,12 +1206,12 @@
         <div class="confidence-step" id="cStep1">
           <div class="c-step-num">01</div>
           <div class="c-step-content">
-            <div class="c-step-title">Become Forge.</div>
+            <div class="c-step-title">You are Kael Voss.</div>
             <div class="c-step-text">
               Your brain is wired to protect you — it scans for threats, overestimates risk, and waits until every variable is certain. 
-              But certainty never arrives. <strong>The most successful people don't wait for confidence to show up — they act first, 
-              and the feeling follows.</strong> This isn't denial. It's <em>strategic delusion</em> — choosing to believe in your capability 
-              before the evidence arrives, so the evidence has a chance to appear. <strong>Forge shapes reality. He doesn't wait for the path to clear — he builds it.</strong>
+              But certainty never arrives. <strong>Kael Voss doesn't chase opportunities. He creates markets.</strong> He doesn't wait for confidence to show up — he acts first, and the feeling follows. 
+              This isn't denial. It's <em>strategic delusion</em> — choosing to believe in your capability before the evidence arrives, so the evidence has a chance to appear. 
+              <strong>Kael Voss shapes reality. He doesn't wait for the path to clear — he builds it. By the end of this ritual, you are him.</strong>
             </div>
             <button class="btn btn-primary" onclick="advanceConfidence(2)" style="margin-top:12px;">I Understand →</button>
           </div>
@@ -1221,7 +1221,7 @@
           <div class="c-step-num">02</div>
           <div class="c-step-content">
             <div class="c-step-title">The Incantation</div>
-            <div class="c-step-sub">Play Till I Collapse. Read each statement aloud. Become Forge.</div>
+            <div class="c-step-sub">Play Till I Collapse. Read each statement aloud. Feel Kael Voss take over.</div>
             <div id="cIncantationContainer"></div>
             <button class="btn btn-primary" id="btnCAdvance3" style="margin-top:16px;display:none;" onclick="advanceConfidence(3)">I Embody This →</button>
           </div>
@@ -1232,7 +1232,7 @@
           <div class="c-step-content">
             <div class="c-step-title">The Seal</div>
             <div class="c-step-text">
-              One bold action Forge takes today. Not a plan. Not a maybe. <strong>An action.</strong>
+              One bold action Kael Voss takes today. Not a plan. Not a maybe. <strong>An action.</strong>
             </div>
             <textarea id="cSealInput" rows="3" placeholder="e.g. I will send the pitch deck to 3 investors before noon."></textarea>
             <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
@@ -1240,7 +1240,7 @@
               <button class="btn" onclick="resetConfidence()">↺ Reset</button>
             </div>
             <div id="cSealedDisplay" style="display:none;margin-top:16px;padding:16px;border-radius:10px;background:rgba(200,245,68,0.08);border:1px solid rgba(200,245,68,0.2);">
-              <div style="color:var(--accent);font-family:'DM Mono',monospace;font-size:11px;margin-bottom:6px;">✓ FORGE SEALED</div>
+              <div style="color:var(--accent);font-family:'DM Mono',monospace;font-size:11px;margin-bottom:6px;">✓ KAEL VOSS SEALED</div>
               <div style="font-size:14px;font-weight:500;" id="cSealedText"></div>
             </div>
           </div>
@@ -2896,14 +2896,16 @@
 
       // ─── CONFIDENCE RITUAL ───
       const CONFIDENCE_INCANTATIONS = [
-        "Uncertainty is where I grow. I move before I feel ready.",
+        "Kael Voss doesn't chase opportunities. He creates markets.",
+        "I am Kael Voss. I shape reality before it shapes me.",
+        "Uncertainty is where I build. I move before I feel ready.",
         "I don't need permission to act. I give myself full authority.",
-        "Failure is data. Every no moves me closer to yes.",
-        "My conviction is louder than my doubt.",
-        "I am the kind of person who takes bold action. That's my identity.",
+        "Failure is data. Every no moves me closer to my yes.",
+        "My conviction is louder than any doubt. My vision is sharper than any fear.",
+        "I am the kind of person who builds billion-dollar companies. That is my identity.",
         "Strategic delusion is my edge — I believe in my capability before the evidence arrives, so the evidence has a chance to appear.",
-        "I trust myself completely. I can handle whatever happens.",
-        "I am unstoppable because I start before I'm ready."
+        "I trust myself completely. I can handle whatever happens. I am unstoppable because I start before I'm ready.",
+        "I am Kael Voss. Cool. Sharp. Decisive. I build what others only imagine."
       ];
 
       let cStep = 1;
