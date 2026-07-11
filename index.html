@@ -285,6 +285,11 @@
     .confidence-song-card {
       background: rgba(255,255,255,0.04); border: 1px solid var(--border);
       border-radius: 12px; padding: 16px; margin-bottom: 20px;
+      transition: border-color 0.4s ease, box-shadow 0.4s ease;
+    }
+    .confidence-song-card.active {
+      border-color: rgba(200,245,68,0.5);
+      box-shadow: 0 0 18px rgba(200,245,68,0.12);
     }
     .song-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.15em; color: var(--muted); text-transform: uppercase; margin-bottom: 10px; }
     .song-controls { display: flex; align-items: center; gap: 12px; }
@@ -1191,8 +1196,8 @@
         </div>
 
         <!-- Song Player -->
-        <div class="confidence-song-card">
-          <div class="song-label">🎵 MAMBA ANTHEM</div>
+        <div class="confidence-song-card" id="cSongCard">
+          <div class="song-label">🎵 MAMBA ANTHEM — Play this before starting the incantation</div>
           <div class="song-controls">
             <div style="flex:1;min-width:0;">
               <div class="song-title" id="cSongTitle">Till I Collapse</div>
@@ -1215,7 +1220,7 @@
               <p style="margin-top:12px;">Kael Voss is a focused operating state that activates the moment work begins. A single intentional switch brings him forward instantly. His posture aligns, his mind sharpens, his communication becomes effortless, and execution flows with precision. Every work session begins in this state, and every achievement strengthens it further.</p>
               <p style="margin-top:12px;color:var(--accent);font-weight:600;">Kael Voss builds the path. He shapes reality. He inspires confidence. He creates value at a global scale. Every moment in this ritual strengthens that identity until it becomes instinctive, natural, and effortless.</p>
             </div>
-            <button class="btn btn-primary" onclick="advanceConfidence(2)" style="margin-top:12px;">I Understand →</button>
+            <button class="btn btn-primary" onclick="advanceConfidence(2)" style="margin-top:16px;">I Accept This Identity →</button>
           </div>
         </div>
 
@@ -1223,7 +1228,7 @@
           <div class="c-step-num">02</div>
           <div class="c-step-content">
             <div class="c-step-title">The Incantation</div>
-            <div class="c-step-sub">Play Till I Collapse. Read each statement aloud. Feel Kael Voss take over.</div>
+            <div class="c-step-sub">⬆ Play the song above, then read each statement aloud. Say it like you mean it. Feel Kael Voss take over.</div>
             <div id="cIncantationContainer"></div>
             <button class="btn btn-primary" id="btnCAdvance3" style="margin-top:16px;display:none;" onclick="advanceConfidence(3)">I Embody This →</button>
           </div>
@@ -2525,19 +2530,38 @@
 
       // ─── IDENTITY ───
       function renderIdentity() {
-        const sealed = reproLoad('identitySealed', [false,false,false,false,false,false,false]);
+        // Build a flat list of all statements with their category+index key
+        const allStatements = [];
+        IDENTITY_CATEGORIES.forEach((cat) => {
+          cat.statements.forEach((s, si) => {
+            allStatements.push({ cat: cat.name, icon: cat.icon, text: s, key: cat.name + ':' + si });
+          });
+        });
+
+        const sealed = reproLoad('identitySealed', {});
         const grid = document.getElementById('identityGrid');
         grid.innerHTML = '';
-        IDENTITY_STATEMENTS.forEach((s, i) => {
-          const card = document.createElement('div');
-          card.className = 'identity-card' + (sealed[i] ? ' sealed' : '');
-          card.innerHTML = `<div class="id-check">${sealed[i]?'✓':''}</div><div class="id-text">${s}</div>`;
-          card.onclick = () => {
-            sealed[i] = !sealed[i];
-            reproSave('identitySealed', sealed);
-            renderIdentity();
-          };
-          grid.appendChild(card);
+
+        IDENTITY_CATEGORIES.forEach((cat) => {
+          // Category heading
+          const heading = document.createElement('div');
+          heading.style.cssText = 'grid-column:1/-1;font-family:"DM Mono",monospace;font-size:10px;letter-spacing:0.12em;color:var(--accent);text-transform:uppercase;padding:8px 0 4px;margin-top:8px;border-bottom:1px solid var(--border);';
+          heading.textContent = cat.icon + ' ' + cat.name;
+          grid.appendChild(heading);
+
+          cat.statements.forEach((s, si) => {
+            const key = cat.name + ':' + si;
+            const isSealed = !!sealed[key];
+            const card = document.createElement('div');
+            card.className = 'identity-card' + (isSealed ? ' sealed' : '');
+            card.innerHTML = `<div class="id-check">${isSealed ? '✓' : ''}</div><div class="id-text">${esc(s)}</div>`;
+            card.onclick = () => {
+              sealed[key] = !sealed[key];
+              reproSave('identitySealed', sealed);
+              renderIdentity();
+            };
+            grid.appendChild(card);
+          });
         });
 
         // Monthly purpose
@@ -2916,7 +2940,7 @@
       function startIncantations() {
         const container = document.getElementById('cIncantationContainer');
         container.innerHTML = '';
-        clearInterval(cIncTimer);
+        clearTimeout(cIncTimer);
         let i = 0;
         const showNext = () => {
           if (i >= CONFIDENCE_INCANTATIONS.length) {
@@ -2927,16 +2951,18 @@
           el.className = 'c-incantation';
           el.textContent = CONFIDENCE_INCANTATIONS[i];
           container.appendChild(el);
-          // Trigger entrance
+          // Trigger entrance animation
           requestAnimationFrame(() => {
-            el.classList.add('visible');
-            setTimeout(() => el.classList.add('saying'), 600);
+            requestAnimationFrame(() => {
+              el.classList.add('visible');
+              setTimeout(() => el.classList.add('saying'), 600);
+            });
           });
           i++;
           if (i < CONFIDENCE_INCANTATIONS.length) {
             cIncTimer = setTimeout(showNext, 5000);
           } else {
-            setTimeout(() => {
+            cIncTimer = setTimeout(() => {
               document.getElementById('btnCAdvance3').style.display = 'inline-block';
             }, 3000);
           }
@@ -2944,43 +2970,75 @@
         showNext();
       }
 
-      function stopIncantations() { clearInterval(cIncTimer); }
+      function stopIncantations() { clearTimeout(cIncTimer); }
 
-      // ─── YouTube Player ───
-      const YT_VIDEO_ID = 'gj0Rz-uP4Mk'; // Till I Collapse - Eminem
+      // ─── YouTube Player (lazy-init) ───
+      // The YouTube IFrame API calls window.onYouTubeIframeAPIReady when ready.
+      // Must be assigned to window.* — module scripts are sandboxed and the global
+      // callback would never fire if defined as a plain function inside a module.
+      const YT_VIDEO_ID = 'AXvmM8WZMTQ'; // Till I Collapse - Eminem (Official Video)
       let ytPlayer = null;
       let ytReady = false;
+      let ytInitialized = false;
 
-      function onYouTubeIframeAPIReady() {
+      window.onYouTubeIframeAPIReady = function() {
+        // Make the container visible so YT.Player can measure it
+        const container = document.getElementById('cYouTubePlayer');
+        container.style.display = 'block';
         ytPlayer = new YT.Player('cYouTubePlayer', {
           height: '200',
           width: '100%',
           videoId: YT_VIDEO_ID,
-          playerVars: { playsinline: 1, controls: 1, rel: 0 },
+          playerVars: { playsinline: 1, controls: 1, rel: 0, modestbranding: 1 },
           events: {
-            onReady: () => { ytReady = true; document.getElementById('btnCPlay').disabled = false; },
+            onReady: (event) => {
+              ytReady = true;
+              const btn = document.getElementById('btnCPlay');
+              if (btn) btn.textContent = '▶ Play';
+            },
             onStateChange: (e) => {
               const btn = document.getElementById('btnCPlay');
+              if (!btn) return;
               if (e.data === YT.PlayerState.PLAYING) btn.textContent = '⏸ Pause';
               else if (e.data === YT.PlayerState.ENDED || e.data === YT.PlayerState.PAUSED) btn.textContent = '▶ Play';
             }
           }
         });
-      }
+        ytInitialized = true;
+      };
 
-      // Load YouTube IFrame API
-      const ytScript = document.createElement('script');
-      ytScript.src = 'https://www.youtube.com/iframe_api';
-      ytScript.async = true;
-      document.head.appendChild(ytScript);
+      // Load YouTube IFrame API script once
+      (function loadYTAPI() {
+        if (document.getElementById('yt-iframe-api')) return;
+        const s = document.createElement('script');
+        s.id = 'yt-iframe-api';
+        s.src = 'https://www.youtube.com/iframe_api';
+        s.async = true;
+        document.head.appendChild(s);
+      })();
 
       function toggleConfidenceSong() {
         const btn = document.getElementById('btnCPlay');
         const container = document.getElementById('cYouTubePlayer');
+
+        // Show the player container
         container.style.display = 'block';
 
-        if (!ytPlayer || !ytReady) {
-          btn.textContent = '⏳ Loading...';
+        // If YT API not ready yet, show loading state and wait
+        if (!ytReady || !ytPlayer) {
+          btn.textContent = '⏳ Loading…';
+          // Poll until ready (max 10s)
+          const poll = setInterval(() => {
+            if (ytReady && ytPlayer) {
+              clearInterval(poll);
+              ytPlayer.playVideo();
+              btn.textContent = '⏸ Pause';
+            }
+          }, 300);
+          setTimeout(() => {
+            clearInterval(poll);
+            if (!ytReady) btn.textContent = '▶ Play';
+          }, 10000);
           return;
         }
 
@@ -2998,31 +3056,54 @@
         document.getElementById('cStep' + cStep).style.display = 'none';
         cStep = n;
         const next = document.getElementById('cStep' + n);
-        if (next) {
-          next.style.display = 'flex';
-          if (n === 2) startIncantations();
-          if (n === 3) {
-            stopIncantations();
-            if (ytPlayer && ytReady) { ytPlayer.pauseVideo(); document.getElementById('btnCPlay').textContent = '▶ Play'; }
+        if (!next) return;
+        next.style.display = 'flex';
+        const songCard = document.getElementById('cSongCard');
+        if (n === 2) {
+          // Highlight song card so user knows to play it
+          if (songCard) songCard.classList.add('active');
+          // Scroll song card into view
+          if (songCard) songCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          // Start incantations
+          startIncantations();
+        }
+        if (n === 3) {
+          // Remove song card highlight
+          if (songCard) songCard.classList.remove('active');
+          stopIncantations();
+          // Pause song when moving to the Seal step
+          if (ytPlayer && ytReady) {
+            try { ytPlayer.pauseVideo(); } catch(e) {}
+            document.getElementById('btnCPlay').textContent = '▶ Play';
           }
+          // Scroll to seal step
+          next.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
       }
 
       function sealConfidence() {
         const text = document.getElementById('cSealInput').value.trim();
-        if (!text) { document.getElementById('cSealInput').style.borderColor = 'var(--danger)'; setTimeout(() => document.getElementById('cSealInput').style.borderColor = '', 600); return; }
+        if (!text) {
+          document.getElementById('cSealInput').style.borderColor = 'var(--danger)';
+          setTimeout(() => document.getElementById('cSealInput').style.borderColor = '', 600);
+          return;
+        }
         document.getElementById('cSealedText').textContent = text;
         document.getElementById('cSealedDisplay').style.display = 'block';
         document.getElementById('btnCSeal').textContent = '✓ Sealed';
         document.getElementById('btnCSeal').disabled = true;
-        // Save to localStorage
+        // Save to Firebase-synced storage via reproSave
         const seals = JSON.parse(localStorage.getItem('aethelgard:confidenceSeals') || '[]');
         seals.push({ action: text, date: new Date().toISOString() });
         localStorage.setItem('aethelgard:confidenceSeals', JSON.stringify(seals));
+        // Sync to cloud
+        if (cloudSyncActive) {
+          try { set(ref(db, 'state/confidenceSeals'), seals).catch(() => {}); } catch(e) {}
+        }
       }
 
       function resetConfidence() {
-        clearInterval(cIncTimer);
+        clearTimeout(cIncTimer);
         cStep = 1;
         document.querySelectorAll('.confidence-step').forEach(el => { el.style.display = 'none'; });
         document.getElementById('cStep1').style.display = 'flex';
@@ -3032,12 +3113,25 @@
         document.getElementById('btnCSeal').disabled = false;
         document.getElementById('cSealedDisplay').style.display = 'none';
         document.getElementById('cSealInput').value = '';
+        // Remove song card active state
+        const songCard = document.getElementById('cSongCard');
+        if (songCard) songCard.classList.remove('active');
+        // Pause song if playing
+        if (ytPlayer && ytReady) {
+          try { ytPlayer.pauseVideo(); } catch(e) {}
+          document.getElementById('btnCPlay').textContent = '▶ Play';
+        }
+        // Scroll back to top of confidence view
+        document.getElementById('viewConfidence').scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
 
-      // Confidence audio auto-play sync
-      document.getElementById('cAudio')?.addEventListener('ended', () => {
-        document.getElementById('btnCPlay').textContent = '▶ Play';
-      });
+      // Expose to window so inline onclick="..." in HTML can call them.
+      // script type="module" scopes all declarations locally — window.* is needed
+      // for onclick attributes which look up names on the global object.
+      window.toggleConfidenceSong = toggleConfidenceSong;
+      window.advanceConfidence   = advanceConfidence;
+      window.sealConfidence      = sealConfidence;
+      window.resetConfidence     = resetConfidence;
 
       // Boot
       updateRing(); setInterval(updateRing, 60000);
