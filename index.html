@@ -254,8 +254,21 @@
       100% { transform: scale(1.05); box-shadow: 0 0 15px rgba(255,215,0,0.3); }
     }
     
-    .affirmation { font-size: 18px; line-height: 1.5; font-weight: 500; letter-spacing: 0.02em; color: var(--text-secondary); margin-bottom: 24px; opacity: 0; transform: translateY(10px); transition: all 1s ease; }
-    .affirmation.visible { opacity: 1; transform: translateY(0); color: var(--text-primary); }
+    .affirmation { font-size: 15px; line-height: 1.5; font-weight: 500; letter-spacing: 0.02em; color: var(--text-secondary); margin-bottom: 10px; }
+    .ritual-affirm-group {
+      margin-bottom: 24px; padding: 16px; border-radius: 10px;
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+    }
+    .ritual-affirm-cat {
+      font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.12em;
+      color: var(--accent); text-transform: uppercase; margin-bottom: 10px;
+      padding-bottom: 8px; border-bottom: 1px solid var(--border);
+    }
+    .ritual-dos {
+      padding: 16px; border-radius: 10px;
+      background: rgba(200,245,68,0.05); border: 1px solid rgba(200,245,68,0.15);
+      margin-bottom: 24px;
+    }
     
     .scene-card { background: rgba(255,255,255,0.03); padding: 20px; border-radius: 12px; margin-bottom: 16px; text-align: left; width: 100%; opacity: 0; transform: translateY(10px); transition: all 0.8s ease; }
     .scene-card.visible { opacity: 1; transform: translateY(0); }
@@ -342,6 +355,42 @@
     }
     .repro-panel { display: none; animation: fadeIn 0.3s ease; }
     .repro-panel.active { display: block; }
+
+    /* ─── DAILY AUDIT ─── */
+    .audit-card {
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+      border-radius: 10px; padding: 16px; margin-bottom: 12px;
+      transition: border-color 0.2s;
+    }
+    .audit-card:focus-within { border-color: rgba(200,245,68,0.3); }
+    .audit-q {
+      font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 10px;
+      line-height: 1.5;
+    }
+    .audit-card textarea {
+      width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border);
+      border-radius: 8px; padding: 12px; color: var(--text-primary);
+      font-size: 13px; font-family: var(--font); resize: vertical;
+      line-height: 1.6; transition: border-color 0.2s;
+    }
+    .audit-card textarea:focus { outline: none; border-color: rgba(200,245,68,0.4); }
+    .audit-card textarea::placeholder { color: var(--muted); font-size: 12px; }
+
+    .audit-history-entry {
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+      border-radius: 10px; padding: 16px; margin-bottom: 10px;
+    }
+    .audit-history-entry .ah-date {
+      font-family: 'DM Mono', monospace; font-size: 10px; color: var(--accent);
+      margin-bottom: 10px; letter-spacing: 0.5px;
+    }
+    .audit-history-entry .ah-item {
+      font-size: 12px; color: var(--text-secondary); line-height: 1.6;
+      margin-bottom: 8px; padding-left: 12px; border-left: 2px solid var(--border);
+    }
+    .audit-history-entry .ah-item strong {
+      color: var(--text-primary); font-weight: 600;
+    }
 
     /* Phase Stepper */
     .phase-stepper {
@@ -755,6 +804,7 @@
           <button class="repro-tab" data-repro-tab="conscious">Conscious + Therapy</button>
           <button class="repro-tab" data-repro-tab="parent">Parent Wounds</button>
           <button class="repro-tab" data-repro-tab="identity">Identity</button>
+          <button class="repro-tab" data-repro-tab="audit">Daily Audit</button>
         </div>
       </div>
 
@@ -1025,6 +1075,45 @@
             </div>
           </div>
           <div id="mpLog"></div>
+        </div>
+      </div>
+
+      <!-- Daily Audit -->
+      <div id="repro-panel-audit" class="repro-panel">
+        <div class="glass-card">
+          <div class="eyebrow">DAILY AUDIT</div>
+          <p style="font-size:12px;color:var(--text-secondary);margin-bottom:16px;line-height:1.6;">
+            <strong>10 minutes.</strong> Three questions. No right answers — only honest ones. 
+            Come back every day and watch how your beliefs shift.
+          </p>
+          <div id="auditDate" style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:16px;"></div>
+
+          <div class="audit-card">
+            <div class="audit-q">What belief drove my best behavior today?</div>
+            <textarea id="auditQ1" rows="3" placeholder="e.g. I believed this effort would compound, so I did the work even when I didn't feel like it."></textarea>
+          </div>
+
+          <div class="audit-card">
+            <div class="audit-q">What belief held me back today?</div>
+            <textarea id="auditQ2" rows="3" placeholder="e.g. I believed I needed to feel ready before starting, so I procrastinated."></textarea>
+          </div>
+
+          <div class="audit-card">
+            <div class="audit-q">What's the one belief I want to strengthen tomorrow?</div>
+            <textarea id="auditQ3" rows="3" placeholder="e.g. I am the kind of person who starts before I'm ready."></textarea>
+          </div>
+
+          <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;">
+            <button class="btn" id="btnAuditSave" style="background:rgba(200,245,68,0.1);border-color:rgba(200,245,68,0.2);color:var(--accent);">💾 Save Today's Audit</button>
+            <button class="btn" id="btnAuditClear" style="color:var(--muted);">✕ Clear</button>
+          </div>
+          <div id="auditSaved" style="font-size:10px;color:var(--accent);font-family:var(--mono);margin-top:8px;opacity:0;transition:opacity 0.3s;"></div>
+        </div>
+
+        <div class="glass-card">
+          <div class="eyebrow">📖 AUDIT HISTORY</div>
+          <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">Scroll through past entries and watch your beliefs evolve.</p>
+          <div id="auditHistory"></div>
         </div>
       </div>
     </div>
@@ -1588,15 +1677,75 @@
         "I deserve success without guilt."
       ];
 
-      const IDENTITY_STATEMENTS = [
-        "I keep promises to myself.",
-        "I face uncertainty.",
-        "I speak honestly.",
-        "I respect my body.",
-        "I create value.",
-        "I don't need everyone's approval.",
-        "I am becoming someone who can handle whatever happens."
+      const IDENTITY_CATEGORIES = [
+        { name: "Health", icon: "🏋️", statements: [
+          "I nourish my body with food that fuels strength, energy, and longevity.",
+          "I move my body every day with purpose.",
+          "I feel energized, strong, and healthy.",
+          "My health supports every dream I pursue."
+        ]},
+        { name: "Discipline", icon: "⚡", statements: [
+          "I honor the commitments I make to myself.",
+          "I follow through with consistency.",
+          "I direct my attention toward what matters most.",
+          "I complete important work with focus and intention."
+        ]},
+        { name: "Wealth", icon: "💰", statements: [
+          "I create exceptional value that is rewarded generously.",
+          "I continuously expand my ability to create wealth.",
+          "I recognize opportunities and act on them wisely.",
+          "I build assets, businesses, and systems that create lasting abundance.",
+          "I think boldly and execute intelligently."
+        ]},
+        { name: "Courage & Execution", icon: "🔥", statements: [
+          "I take meaningful action every day.",
+          "I make courageous decisions with confidence.",
+          "I trust myself to solve challenges as they arise.",
+          "I create momentum through consistent execution.",
+          "I turn ideas into reality."
+        ]},
+        { name: "Learning & Growth", icon: "📚", statements: [
+          "I learn quickly and apply what I learn.",
+          "Every experience expands my wisdom.",
+          "My skills grow stronger every day.",
+          "I embrace challenges as opportunities for growth."
+        ]},
+        { name: "Relationships", icon: "🤝", statements: [
+          "I build deep, meaningful relationships.",
+          "I communicate with honesty, warmth, and confidence.",
+          "I create trust through my actions.",
+          "I bring value to every interaction.",
+          "I deserve love, respect, and genuine connection."
+        ]},
+        { name: "Self", icon: "🧘", statements: [
+          "I am disciplined, capable, and resourceful.",
+          "I believe in my ability to create extraordinary outcomes.",
+          "I lead my life with clarity and purpose.",
+          "I become stronger through every challenge.",
+          "I create the future I envision."
+        ]},
+        { name: "Ambition", icon: "🚀", statements: [
+          "I pursue bold goals with conviction.",
+          "I invest in myself every day.",
+          "I create opportunities through action.",
+          "I build a life of freedom, impact, and abundance.",
+          "I expand beyond every previous version of myself."
+        ]},
+        { name: "Core Identity", icon: "🎯", statements: [
+          "I am a creator.",
+          "I am a builder.",
+          "I am a leader.",
+          "I am a lifelong learner.",
+          "I am consistent.",
+          "I am resilient.",
+          "I am courageous.",
+          "I am focused.",
+          "I am worthy of success, love, and abundance.",
+          "I create value wherever I go."
+        ]}
       ];
+
+      const DAILY_OS = `I lead with purpose. I create value. I take meaningful action. I learn continuously. I build lasting wealth. I nurture my health. I strengthen every relationship. I honor my commitments. I become a stronger, wiser, and more capable version of myself every day.`;
 
       const DP_KEYS = ['breathwork','journaling','exercise','reading','discomfort','reflection'];
       const DP_LABELS = [
@@ -1642,6 +1791,7 @@
             if (name === 'conscious') renderTherapy();
             if (name === 'parent') renderParentWounds();
             if (name === 'identity') renderIdentity();
+            if (name === 'audit') renderDailyAudit();
           });
         });
       }
@@ -2304,6 +2454,7 @@
         renderDailyPractices();
         renderTherapy();
         renderIdentity();
+        renderDailyAudit();
         // Subconscious and parent wounds are rendered on tab switch
       }
 
@@ -2318,6 +2469,90 @@
         el.textContent = msg;
         el.classList.add('show');
         setTimeout(() => el.classList.remove('show'), 4000);
+      }
+
+      // ─── DAILY AUDIT ───
+      function renderDailyAudit() {
+        const audits = reproLoad('dailyAudit', {});
+        const today = new Date().toISOString().slice(0,10);
+        document.getElementById('auditDate').textContent = today;
+
+        const q1 = document.getElementById('auditQ1');
+        const q2 = document.getElementById('auditQ2');
+        const q3 = document.getElementById('auditQ3');
+        if (!q1) return;
+
+        // Load today's entry if exists
+        const entry = audits[today];
+        if (entry) {
+          q1.value = entry.q1 || '';
+          q2.value = entry.q2 || '';
+          q3.value = entry.q3 || '';
+        }
+
+        // Save handler
+        const saveAudit = () => {
+          const v1 = q1.value.trim();
+          const v2 = q2.value.trim();
+          const v3 = q3.value.trim();
+          if (!v1 && !v2 && !v3) return;
+          audits[today] = { q1: v1, q2: v2, q3: v3 };
+          reproSave('dailyAudit', audits);
+          const savedEl = document.getElementById('auditSaved');
+          savedEl.textContent = '✓ Saved for ' + today;
+          savedEl.style.opacity = '1';
+          setTimeout(() => savedEl.style.opacity = '0', 2500);
+          renderAuditHistory();
+        };
+
+        document.getElementById('btnAuditSave').onclick = saveAudit;
+
+        // Ctrl+Enter to save
+        [q1, q2, q3].forEach(el => {
+          el.onkeydown = (e) => {
+            if (e.ctrlKey && e.key === 'Enter') saveAudit();
+          };
+        });
+
+        // Clear button
+        document.getElementById('btnAuditClear').onclick = () => {
+          if (entry && !confirm('Clear today\'s audit?')) return;
+          delete audits[today];
+          reproSave('dailyAudit', audits);
+          q1.value = ''; q2.value = ''; q3.value = '';
+          renderAuditHistory();
+          const savedEl = document.getElementById('auditSaved');
+          savedEl.textContent = '✕ Cleared';
+          savedEl.style.opacity = '1';
+          setTimeout(() => savedEl.style.opacity = '0', 2000);
+        };
+
+        renderAuditHistory();
+      }
+
+      function renderAuditHistory() {
+        const audits = reproLoad('dailyAudit', {});
+        const container = document.getElementById('auditHistory');
+        if (!container) return;
+
+        const dates = Object.keys(audits).sort().reverse();
+        if (dates.length === 0) {
+          container.innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:20px;">No entries yet. Complete your first daily audit above.</div>';
+          return;
+        }
+
+        container.innerHTML = dates.map(date => {
+          const a = audits[date];
+          if (!a) return '';
+          const hasContent = a.q1 || a.q2 || a.q3;
+          if (!hasContent) return '';
+          return `<div class="audit-history-entry">
+            <div class="ah-date">${date}</div>
+            ${a.q1 ? `<div class="ah-item"><strong>Drove best behavior:</strong> ${esc(a.q1)}</div>` : ''}
+            ${a.q2 ? `<div class="ah-item"><strong>Held me back:</strong> ${esc(a.q2)}</div>` : ''}
+            ${a.q3 ? `<div class="ah-item"><strong>Strengthen tomorrow:</strong> ${esc(a.q3)}</div>` : ''}
+          </div>`;
+        }).join('');
       }
 
       // ─── END REPROGRAM ENGINE ───
@@ -2380,24 +2615,42 @@
       };
 
       function setRitualPhase2() {
-        setRitualPhase(2, 180);
-        const affs = [
-          "I am an early riser. I create my day before the world begins.",
-          "I honor my body. I become stronger through consistent training.",
-          "I nourish my mind. Every day I grow wiser and more capable.",
-          "I begin each morning with meditation, affirmations, and reading because they shape who I become.",
-          "I finish what I start. Consistency is part of my identity.",
-          "I create value through focused work and disciplined action.",
-          "I lead with calm confidence, kindness, and integrity.",
-          "My standards are high because I respect myself deeply.",
-          "I remain energized throughout the day. My routines support lasting focus and vitality.",
-          "Every action I take today moves me toward the life I am creating."
-        ];
+        setRitualPhase(2, 120);
         const con = document.getElementById('affirmationsContainer'); con.innerHTML = '';
-        affs.forEach((a, i) => {
-          const el = document.createElement('div'); el.className = 'affirmation'; el.textContent = a;
-          con.appendChild(el); setTimeout(() => el.classList.add('visible'), i * 8000);
+
+        // Build grouped identity statements
+        IDENTITY_CATEGORIES.forEach((cat, ci) => {
+          const group = document.createElement('div');
+          group.className = 'ritual-affirm-group';
+          group.style.opacity = '0';
+          group.style.transform = 'translateY(10px)';
+          group.innerHTML = `<div class="ritual-affirm-cat">${cat.icon} ${cat.name}</div>`;
+          cat.statements.forEach(s => {
+            const el = document.createElement('div'); el.className = 'affirmation'; el.textContent = s;
+            group.appendChild(el);
+          });
+          con.appendChild(group);
+          // Stagger animate each category
+          setTimeout(() => {
+            group.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            group.style.opacity = '1';
+            group.style.transform = 'translateY(0)';
+          }, ci * 4000);
         });
+
+        // Daily Operating Statement at the end
+        setTimeout(() => {
+          const dos = document.createElement('div');
+          dos.className = 'ritual-dos';
+          dos.innerHTML = `<div class="ritual-affirm-cat">📜 Daily Operating Statement</div><div class="affirmation" style="font-style:italic;">${DAILY_OS}</div>`;
+          dos.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+          dos.style.opacity = '0'; dos.style.transform = 'translateY(10px)';
+          con.appendChild(dos);
+          requestAnimationFrame(() => { dos.style.opacity = '1'; dos.style.transform = 'translateY(0)'; });
+        }, IDENTITY_CATEGORIES.length * 4000 + 1000);
+
+        // Show proceed button after all categories + DOS
+        const totalDelay = (IDENTITY_CATEGORIES.length + 1) * 4000 + 2000;
         setTimeout(() => {
           const b = document.getElementById('btnPhase2'); b.style.opacity = 1; b.style.pointerEvents = 'all';
           let taps = 0;
@@ -2415,7 +2668,7 @@
               clearInterval(rTimer); setTimeout(() => setRitualPhase3(), 1500);
             }
           };
-        }, affs.length * 8000);
+        }, totalDelay);
       }
 
       function setRitualPhase3() {
