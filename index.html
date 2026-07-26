@@ -109,19 +109,6 @@
     /* Day Ring Container */
     .day-ring-container { display: flex; justify-content: center; align-items: center; gap: 26px; margin-bottom: 32px; flex-wrap: wrap; }
 
-    .life-affirmation {
-      text-align: center; padding: 12px 16px; margin-bottom: 20px;
-      border-radius: 10px; background: rgba(255,255,255,0.02);
-      border: 1px solid var(--border);
-    }
-    .life-affirmation .la-line {
-      font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.15em;
-      text-transform: uppercase; margin-bottom: 4px;
-    }
-    .life-affirmation .la-cat { color: var(--accent); font-weight: 600; }
-    .life-affirmation .la-divider { color: var(--muted); margin: 0 8px; }
-    .life-affirmation .la-text { font-size: 11px; color: var(--text-tertiary); font-style: italic; }
-    body.mode-ritual .life-affirmation, body.mode-confidence .life-affirmation { display: none; }
     .day-ring-left { position: relative; width: 144px; height: 144px; display: flex; justify-content: center; align-items: center; flex-shrink: 0; }
     .day-ring-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
     .day-ring-track { fill: none; stroke: rgba(255,255,255,0.06); stroke-width: 6; }
@@ -728,6 +715,178 @@
       transform: translateY(-100%); transition: transform 0.3s ease;
     }
     .repro-notif.show { transform: translateY(0); }
+
+    /* ─── PLAN MODE — Premium Intentional Calendar ─── */
+    .plan-outer { display: flex; flex-direction: column; gap: 0; }
+
+    /* Top bar */
+    .plan-topbar {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      margin-bottom: 16px; flex-wrap: wrap; gap: 10px;
+    }
+    .plan-date-line { font-size: 18px; font-weight: 700; color: #fff; letter-spacing: -0.02em; line-height: 1.2; }
+    .plan-date-sub {
+      font-family: 'DM Mono', monospace; font-size: 10px;
+      color: rgba(255,255,255,0.2); margin-top: 3px; letter-spacing: 0.04em;
+    }
+    .plan-stats-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .plan-stat-chip {
+      font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 700;
+      padding: 4px 10px; border-radius: 20px;
+      background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.3);
+      border: 1px solid rgba(255,255,255,0.06); white-space: nowrap;
+      transition: all 0.3s;
+    }
+    .plan-stat-chip.live { color: #6BE3A4; border-color: rgba(107,227,164,0.25); background: rgba(107,227,164,0.06); }
+
+    /* Category presets */
+    .plan-cats {
+      display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px;
+    }
+    .plan-cat-chip {
+      display: flex; align-items: center; gap: 5px;
+      padding: 5px 10px; border-radius: 20px; cursor: pointer;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.06em;
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.4); transition: all 0.2s; user-select: none;
+    }
+    .plan-cat-chip:hover { border-color: rgba(255,255,255,0.18); color: #fff; }
+    .plan-cat-chip.selected { color: #fff; }
+    .plan-cat-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+    /* Add form */
+    .plan-form-wrap {
+      padding: 14px 16px; border-radius: 12px;
+      background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);
+      margin-bottom: 20px; transition: box-shadow 0.3s;
+    }
+    .plan-form-wrap.glow { box-shadow: 0 0 24px rgba(200,245,68,0.14); }
+    .plan-form-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+    .plan-form-row input, .plan-form-row select {
+      background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08);
+      padding: 9px 12px; border-radius: 8px; color: #FFF; font-size: 12.5px;
+      outline: none; font-family: inherit;
+      -webkit-appearance: none; appearance: none; transition: border-color 0.2s;
+    }
+    .plan-form-row input:focus, .plan-form-row select:focus { border-color: rgba(255,255,255,0.22); }
+    .plan-form-row select option { background: #111; }
+    .pf-title { flex: 1; min-width: 130px; }
+    .pf-time { width: 86px; cursor: pointer; }
+    .pf-sep { color: rgba(255,255,255,0.15); font-size: 13px; flex-shrink: 0; }
+    .pf-color-wrap {
+      width: 34px; height: 34px; border-radius: 8px; overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.1); flex-shrink: 0; cursor: pointer;
+    }
+    .pf-color-picker { width: 44px; height: 44px; padding: 0; margin: -5px; cursor: pointer; border: none; background: none; }
+    .pf-add-btn {
+      background: rgba(200,245,68,0.08); border: 1px solid rgba(200,245,68,0.2);
+      color: var(--accent); padding: 9px 18px; border-radius: 8px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
+      cursor: pointer; transition: all 0.2s; white-space: nowrap;
+    }
+    .pf-add-btn:hover { background: rgba(200,245,68,0.16); box-shadow: 0 0 12px rgba(200,245,68,0.1); }
+
+    /* Timeline */
+    .plan-timeline-wrap { position: relative; padding-left: 60px; }
+    .plan-hour-row {
+      position: absolute; left: 0; right: 0;
+      border-top: 1px solid rgba(255,255,255,0.04);
+      pointer-events: none;
+    }
+    .plan-hour-row:first-child { border-top: none; }
+    .plan-hour-label {
+      position: absolute; left: -60px; width: 52px; text-align: right;
+      padding-right: 10px; top: -7px;
+      font-size: 9.5px; font-weight: 600;
+      font-family: 'DM Mono', 'SF Mono', monospace;
+      color: rgba(255,255,255,0.17); letter-spacing: 0.02em;
+      pointer-events: none;
+    }
+    .plan-hour-half {
+      position: absolute; left: 0; right: 0;
+      border-top: 1px dashed rgba(255,255,255,0.025);
+      pointer-events: none;
+    }
+    .plan-hour-slot {
+      position: absolute; left: 0; right: 0; z-index: 2;
+      cursor: pointer; border-radius: 3px;
+      transition: background 0.15s; pointer-events: auto;
+    }
+    .plan-hour-slot:hover { background: rgba(200,245,68,0.035); }
+
+    /* Current time indicator */
+    .plan-now-line {
+      position: absolute; left: -4px; right: 0; height: 1.5px;
+      background: #6BE3A4; z-index: 6; pointer-events: none;
+    }
+    .plan-now-dot {
+      position: absolute; left: -8px; top: -4px;
+      width: 9px; height: 9px; border-radius: 50%;
+      background: #6BE3A4; box-shadow: 0 0 10px rgba(107,227,164,0.5);
+    }
+
+    /* Event cards */
+    .plan-event {
+      position: absolute; left: 3px; right: 4px; z-index: 4;
+      border-radius: 7px; padding: 5px 9px 5px 11px; overflow: hidden;
+      border-left: 3px solid;
+      transition: transform 0.18s cubic-bezier(0.22,1,0.36,1), box-shadow 0.18s, opacity 0.2s;
+      min-height: 22px; box-sizing: border-box;
+      animation: planEventIn 0.25s ease;
+    }
+    @keyframes planEventIn {
+      from { opacity: 0; transform: translateX(-6px) scale(0.98); }
+      to   { opacity: 1; transform: translateX(0) scale(1); }
+    }
+    .plan-event:hover { transform: translateX(2px); z-index: 8; box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+    .plan-event-cat {
+      font-size: 8.5px; font-weight: 800; letter-spacing: 0.1em;
+      text-transform: uppercase; opacity: 0.55; margin-bottom: 1px;
+      font-family: 'DM Mono', monospace;
+    }
+    .plan-event-time {
+      font-size: 9px; font-weight: 600;
+      font-family: 'DM Mono', monospace; opacity: 0.45;
+    }
+    .plan-event-title {
+      font-size: 12.5px; font-weight: 600; line-height: 1.25;
+      letter-spacing: -0.01em; color: rgba(255,255,255,0.92); margin-top: 1px;
+    }
+    .plan-event-del {
+      position: absolute; top: 4px; right: 5px;
+      width: 18px; height: 18px; border-radius: 5px;
+      border: none; background: rgba(0,0,0,0.3); color: rgba(255,255,255,0.3);
+      font-size: 9px; cursor: pointer; opacity: 0; transition: all 0.15s;
+      display: flex; align-items: center; justify-content: center; padding: 0;
+    }
+    .plan-event:hover .plan-event-del { opacity: 1; }
+    .plan-event-del:hover { background: rgba(255,107,107,0.25); color: var(--danger); }
+
+    /* Empty state */
+    .plan-empty {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center; pointer-events: none; z-index: 1;
+    }
+    .plan-empty-icon { font-size: 28px; opacity: 0.15; margin-bottom: 8px; }
+    .plan-empty-text { font-size: 12px; color: rgba(255,255,255,0.1); }
+    .plan-empty-hint { font-size: 10.5px; color: rgba(255,255,255,0.07); margin-top: 4px; }
+
+    /* Day progress bar at bottom */
+    .plan-footer {
+      margin-top: 16px; padding-top: 14px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      display: flex; align-items: center; gap: 12px;
+    }
+    .plan-progress-bar-wrap { flex: 1; height: 3px; background: rgba(255,255,255,0.05); border-radius: 2px; overflow: hidden; }
+    .plan-progress-bar-fill { height: 100%; background: #6BE3A4; border-radius: 2px; transition: width 1s linear; }
+    .plan-progress-label { font-family: 'DM Mono', monospace; font-size: 9.5px; color: rgba(255,255,255,0.2); white-space: nowrap; }
+
+    @media (max-width: 600px) {
+      .plan-timeline-wrap { padding-left: 46px; }
+      .plan-hour-label { left: -46px; width: 40px; font-size: 8.5px; }
+      .pf-time { width: 72px; }
+    }
   </style>
 </head>
 <body>
@@ -751,6 +910,7 @@
           <div class="mode-pill" data-mode="core">CORE<span class="mode-pill-sub" id="coreBadge">🛡️ 0</span></div>
           <div class="mode-pill" data-mode="corporate">CORPORATE<span class="mode-pill-sub" id="cBadge">📊 0%</span></div>
           <div class="mode-pill" data-mode="reprogram">REPROGRAM<span class="mode-pill-sub" id="reproBadge">🧬 Phase —</span></div>
+          <div class="mode-pill" data-mode="plan">PLAN<span class="mode-pill-sub">📋 SCHEDULE</span></div>
           <div class="mode-pill" data-mode="confidence">CONFIDENCE<span class="mode-pill-sub">⚡ KAEL VOSS</span></div>
           <div class="mode-pill" data-mode="ritual">RITUAL<span class="mode-pill-sub">✨ SEAL</span></div>
         </div>
@@ -776,17 +936,6 @@
           <div id="ringReproBadge" style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);margin-top:4px;min-height:14px;"></div>
         </div>
       </div>
-    </div>
-
-    <div class="life-affirmation">
-      <div class="la-line">
-        <span class="la-cat">Family</span>
-        <span class="la-divider">·</span>
-        <span class="la-cat">Health</span>
-        <span class="la-divider">·</span>
-        <span class="la-cat">Career</span>
-      </div>
-      <div class="la-text">Every action I take feeds one of these.</div>
     </div>
 
     <!-- PERSONAL MODE (Only Custom Goals) -->
@@ -1203,6 +1352,76 @@
       </div>
     </div>
 
+    <!-- PLAN MODE — Premium Intentional Calendar -->
+    <div id="viewPlan" class="view-section">
+      <div class="glass-card plan-outer">
+
+        <!-- Top bar -->
+        <div class="plan-topbar">
+          <div>
+            <div class="plan-date-line" id="planDateLine"></div>
+            <div class="plan-date-sub">Daily schedule — resets each day · synced to cloud</div>
+          </div>
+          <div class="plan-stats-row">
+            <div class="plan-stat-chip" id="planBlockCount">0 blocks</div>
+            <div class="plan-stat-chip" id="planHoursPlanned">0h planned</div>
+            <div class="plan-stat-chip live" id="planNowChip">● NOW</div>
+          </div>
+        </div>
+
+        <!-- Category presets -->
+        <div class="plan-cats" id="planCats">
+          <div class="plan-cat-chip selected" data-cat="Work" data-color="#5B8DEF">
+            <div class="plan-cat-dot" style="background:#5B8DEF"></div>WORK
+          </div>
+          <div class="plan-cat-chip" data-cat="Focus" data-color="#A78BFA">
+            <div class="plan-cat-dot" style="background:#A78BFA"></div>FOCUS
+          </div>
+          <div class="plan-cat-chip" data-cat="Body" data-color="#6BE3A4">
+            <div class="plan-cat-dot" style="background:#6BE3A4"></div>BODY
+          </div>
+          <div class="plan-cat-chip" data-cat="Meal" data-color="#F2C063">
+            <div class="plan-cat-dot" style="background:#F2C063"></div>MEAL
+          </div>
+          <div class="plan-cat-chip" data-cat="Rest" data-color="#4ECDC4">
+            <div class="plan-cat-dot" style="background:#4ECDC4"></div>REST
+          </div>
+          <div class="plan-cat-chip" data-cat="Learning" data-color="#FF8C42">
+            <div class="plan-cat-dot" style="background:#FF8C42"></div>LEARN
+          </div>
+          <div class="plan-cat-chip" data-cat="Custom" data-color="#C8F544">
+            <div class="plan-cat-dot" style="background:#C8F544"></div>CUSTOM
+          </div>
+        </div>
+
+        <!-- Add form -->
+        <div class="plan-form-wrap" id="planFormWrap">
+          <div class="plan-form-row">
+            <select id="planStartHour" class="pf-time"></select>
+            <span class="pf-sep">→</span>
+            <select id="planEndHour" class="pf-time"></select>
+            <input type="text" id="planLabel" class="pf-title" placeholder="What are you doing?">
+            <div class="pf-color-wrap">
+              <input type="color" id="planColor" class="pf-color-picker" value="#5B8DEF">
+            </div>
+            <button class="pf-add-btn" id="planAdd">+ Add Block</button>
+          </div>
+        </div>
+
+        <!-- Timeline -->
+        <div id="planCalendar" class="plan-timeline-wrap"></div>
+
+        <!-- Footer progress -->
+        <div class="plan-footer">
+          <div class="plan-progress-label" id="planDayPct">0% of day planned</div>
+          <div class="plan-progress-bar-wrap">
+            <div class="plan-progress-bar-fill" id="planProgressFill" style="width:0%"></div>
+          </div>
+          <div class="plan-progress-label" id="planTimeLeft"></div>
+        </div>
+      </div>
+    </div>
+
     <!-- CONFIDENCE MODE -->
     <div id="viewConfidence" class="view-section">
       <div class="confidence-container">
@@ -1418,7 +1637,8 @@
         "The 0.1% do not wait for tomorrow. Tomorrow is not guaranteed.",
         "Comfort is the enemy of greatness. Your time is running out.",
         "Your bloodline changes here, or it doesn't change at all.",
-        "You are trading a day of your life for this. Make it worth it."
+        "You are trading a day of your life for this. Make it worth it.",
+        "Family · Health · Career — every action I take feeds one of these."
       ];
       document.getElementById('urgencyBanner').textContent = QUOTES[Math.floor(Math.random() * QUOTES.length)];
 
@@ -2738,6 +2958,272 @@
 
       // ─── END REPROGRAM ENGINE ───
 
+      // ─── PLAN MODE — Premium Intentional Calendar ───
+      const PLAN_START = 6, PLAN_END = 24;
+      function planHH() { return window.innerWidth <= 600 ? 46 : 64; }
+
+      // Currently selected category
+      let planActiveCat = 'Work';
+      let planActiveCatColor = '#5B8DEF';
+
+      function hexToRgba(hex, a) {
+        try {
+          const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+          return `rgba(${r},${g},${b},${a})`;
+        } catch(e) { return `rgba(91,141,239,${a})`; }
+      }
+      function planFmt(m) {
+        const h = Math.floor(m/60), min = m%60;
+        return `${h%12||12}:${String(min).padStart(2,'0')} ${h>=12?'PM':'AM'}`;
+      }
+      function planDuration(start, end) {
+        const mins = end - start;
+        if (mins < 60) return `${mins}m`;
+        const h = Math.floor(mins/60), rem = mins%60;
+        return rem ? `${h}h ${rem}m` : `${h}h`;
+      }
+
+      // Populate time selects
+      function planPopulateTimes() {
+        ['planStartHour','planEndHour'].forEach(id => {
+          const sel = document.getElementById(id); if(!sel) return;
+          sel.innerHTML = '';
+          for (let m = PLAN_START*60; m <= PLAN_END*60; m += 30) {
+            const opt = document.createElement('option');
+            opt.value = m; opt.textContent = planFmt(m); sel.appendChild(opt);
+          }
+        });
+        const now = new Date();
+        const mins = now.getHours()*60 + now.getMinutes();
+        const next = Math.ceil(mins/30)*30;
+        const clamped = Math.min(Math.max(next, PLAN_START*60), PLAN_END*60-30);
+        const s = document.getElementById('planStartHour'), e = document.getElementById('planEndHour');
+        if(s) s.value = clamped;
+        if(e) e.value = Math.min(clamped+60, PLAN_END*60);
+      }
+
+      // Category chip selection
+      document.getElementById('planCats').addEventListener('click', (ev) => {
+        const chip = ev.target.closest('.plan-cat-chip');
+        if (!chip) return;
+        document.querySelectorAll('.plan-cat-chip').forEach(c => c.classList.remove('selected'));
+        chip.classList.add('selected');
+        planActiveCat = chip.dataset.cat;
+        planActiveCatColor = chip.dataset.color;
+        const picker = document.getElementById('planColor');
+        if(picker) picker.value = planActiveCatColor;
+        // Highlight chip border with its color
+        chip.style.borderColor = planActiveCatColor + '55';
+        chip.style.color = planActiveCatColor;
+      });
+
+      // Quick add when clicking a slot
+      function planQuickAdd(hourMins) {
+        const s = document.getElementById('planStartHour');
+        const e = document.getElementById('planEndHour');
+        if(s) s.value = Math.min(hourMins, PLAN_END*60-30);
+        if(e) e.value = Math.min(hourMins+60, PLAN_END*60);
+        document.getElementById('planLabel').focus();
+        const wrap = document.getElementById('planFormWrap');
+        wrap.classList.add('glow');
+        setTimeout(() => wrap.classList.remove('glow'), 1800);
+        wrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+
+      // Update the current-time indicator only (no full re-render)
+      function planUpdateNowLine() {
+        const HH = planHH();
+        const now = new Date();
+        const nowMins = now.getHours()*60 + now.getMinutes();
+        const inRange = nowMins >= PLAN_START*60 && nowMins < PLAN_END*60;
+        const line = document.getElementById('planNowLineEl');
+        const dot  = document.getElementById('planNowDotEl');
+        if (line && dot) {
+          if (inRange) {
+            const top = ((nowMins - PLAN_START*60)/60)*HH;
+            line.style.top = top + 'px'; line.style.display = 'block';
+            dot.style.top  = (top-4) + 'px'; dot.style.display = 'block';
+          } else {
+            line.style.display = 'none'; dot.style.display = 'none';
+          }
+        }
+        // Update footer
+        const dayTotal = (PLAN_END - PLAN_START)*60;
+        const elapsed = Math.max(0, Math.min(nowMins - PLAN_START*60, dayTotal));
+        const pct = Math.round(elapsed/dayTotal*100);
+        const fillEl = document.getElementById('planProgressFill');
+        if(fillEl) fillEl.style.width = pct+'%';
+        const pctEl = document.getElementById('planDayPct');
+        if(pctEl) pctEl.textContent = pct + '% of day elapsed';
+        const rem = Math.max(0, PLAN_END*60 - nowMins);
+        const remEl = document.getElementById('planTimeLeft');
+        if(remEl && inRange) {
+          const rh = Math.floor(rem/60), rm = rem%60;
+          remEl.textContent = `${rh}h ${rm}m left`;
+        } else if(remEl) { remEl.textContent = ''; }
+      }
+
+      function renderPlan() {
+        const today = getToday();
+        const blocks = load('plan:' + today, []);
+        blocks.sort((a,b) => a.start - b.start);
+        const HH = planHH();
+        const TOTAL = (PLAN_END - PLAN_START) * HH;
+
+        // Header
+        const dl = document.getElementById('planDateLine');
+        if(dl) dl.textContent = new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
+
+        const bc = document.getElementById('planBlockCount');
+        if(bc) bc.textContent = blocks.length + ' block' + (blocks.length!==1?'s':'');
+
+        const totalMins = blocks.reduce((s,b) => s+(b.end-b.start), 0);
+        const hp = document.getElementById('planHoursPlanned');
+        if(hp) hp.textContent = totalMins >= 60 ? (totalMins/60).toFixed(1).replace('.0','')+'h planned' : totalMins+'m planned';
+
+        // Timeline
+        const cal = document.getElementById('planCalendar');
+        cal.innerHTML = '';
+        cal.style.minHeight = TOTAL + 'px';
+        cal.style.position = 'relative';
+
+        const now = new Date();
+        const nowMins = now.getHours()*60 + now.getMinutes();
+        const nowInRange = nowMins >= PLAN_START*60 && nowMins < PLAN_END*60;
+
+        // Hour rows
+        for (let h = PLAN_START; h < PLAN_END; h++) {
+          const top = (h - PLAN_START) * HH;
+
+          // Hour divider
+          const row = document.createElement('div');
+          row.className = 'plan-hour-row';
+          row.style.top = top + 'px';
+          row.style.height = HH + 'px';
+
+          // Label
+          const lbl = document.createElement('div');
+          lbl.className = 'plan-hour-label';
+          lbl.textContent = `${h%12||12}${h>=12?'PM':'AM'}`;
+          if (nowInRange && nowMins >= h*60 && nowMins < (h+1)*60) {
+            lbl.style.color = '#6BE3A4'; lbl.style.fontWeight = '800';
+          }
+          row.appendChild(lbl);
+
+          // Half-hour tick
+          const half = document.createElement('div');
+          half.className = 'plan-hour-half';
+          half.style.top = (HH/2) + 'px';
+          row.appendChild(half);
+
+          // Clickable slot
+          const slot = document.createElement('div');
+          slot.className = 'plan-hour-slot';
+          slot.style.top = '0'; slot.style.height = HH + 'px';
+          slot.onclick = () => planQuickAdd(h*60);
+          row.appendChild(slot);
+
+          cal.appendChild(row);
+        }
+
+        // Current time line (will be updated by planUpdateNowLine)
+        const nowLine = document.createElement('div');
+        nowLine.id = 'planNowLineEl'; nowLine.className = 'plan-now-line';
+        nowLine.style.display = 'none';
+        const nowDot = document.createElement('div');
+        nowDot.id = 'planNowDotEl'; nowDot.className = 'plan-now-dot';
+        nowDot.style.position = 'absolute'; nowDot.style.display = 'none';
+        cal.appendChild(nowLine); cal.appendChild(nowDot);
+
+        // Empty state
+        if (blocks.length === 0) {
+          const empty = document.createElement('div');
+          empty.className = 'plan-empty';
+          empty.innerHTML = `
+            <div class="plan-empty-icon">📅</div>
+            <div class="plan-empty-text">Your day is a blank canvas</div>
+            <div class="plan-empty-hint">Click any slot above or use the form to plan your day</div>
+          `;
+          cal.appendChild(empty);
+          planUpdateNowLine(); return;
+        }
+
+        // Event blocks
+        blocks.forEach(b => {
+          const col = b.color || '#5B8DEF';
+          const top = ((b.start - PLAN_START*60)/60)*HH;
+          const height = Math.max(((b.end-b.start)/60)*HH - 2, HH*0.38);
+
+          const el = document.createElement('div');
+          el.className = 'plan-event';
+          el.style.cssText = `top:${top}px;height:${height}px;border-left-color:${col};background:${hexToRgba(col, 0.09)};`;
+
+          const showCat = height > 38;
+          const showTime = height > 28;
+          el.innerHTML = `
+            ${showCat && b.cat ? `<div class="plan-event-cat" style="color:${col}">${esc(b.cat)}</div>` : ''}
+            <div class="plan-event-title">${esc(b.label)}</div>
+            ${showTime ? `<div class="plan-event-time">${planFmt(b.start)} – ${planFmt(b.end)} · ${planDuration(b.start,b.end)}</div>` : ''}
+            <button class="plan-event-del" title="Remove">✕</button>
+          `;
+
+          el.querySelector('.plan-event-del').onclick = ev => {
+            ev.stopPropagation();
+            el.style.opacity = '0'; el.style.transform = 'translateX(8px)';
+            setTimeout(() => {
+              const updated = load('plan:'+today, []).filter(x => x.id !== b.id);
+              save('plan:'+today, updated);
+              renderPlan();
+            }, 180);
+          };
+
+          cal.appendChild(el);
+        });
+
+        planUpdateNowLine();
+      }
+
+      // Add block
+      document.getElementById('planAdd').onclick = () => {
+        const start = parseInt(document.getElementById('planStartHour').value);
+        const end   = parseInt(document.getElementById('planEndHour').value);
+        const label = document.getElementById('planLabel').value.trim();
+        const color = document.getElementById('planColor').value || planActiveCatColor;
+        const cat   = planActiveCat;
+
+        if (!label) {
+          document.getElementById('planLabel').style.borderColor = 'var(--danger)';
+          setTimeout(() => document.getElementById('planLabel').style.borderColor = '', 600);
+          document.getElementById('planLabel').focus(); return;
+        }
+        if (end <= start) {
+          document.getElementById('planEndHour').style.borderColor = 'var(--danger)';
+          setTimeout(() => document.getElementById('planEndHour').style.borderColor = '', 600);
+          return;
+        }
+        const today = getToday();
+        const blocks = load('plan:'+today, []);
+        blocks.push({ id: genId(), start, end, label, color, cat });
+        save('plan:'+today, blocks);
+
+        document.getElementById('planLabel').value = '';
+        const nextStart = Math.min(end, PLAN_END*60-30);
+        document.getElementById('planStartHour').value = nextStart;
+        document.getElementById('planEndHour').value = Math.min(nextStart+60, PLAN_END*60);
+        renderPlan();
+        document.getElementById('planLabel').focus();
+      };
+
+      document.getElementById('planLabel').onkeydown = e => {
+        if (e.key === 'Enter') document.getElementById('planAdd').click();
+      };
+
+      // Sync the color picker with the active category color
+      document.getElementById('planColor').addEventListener('input', (e) => {
+        // If user manually picks a color, deselect presets
+        planActiveCatColor = e.target.value;
+      });
+
       // Ritual Engine
       let rTimer, rSec = 0, rPhase = 0;
       function formatT(s) { return `${String(Math.floor(s/60)).padStart(2,'0')}<span class="colon">:</span>${String(s%60).padStart(2,'0')}`; }
@@ -3161,6 +3647,14 @@
       // Boot
       updateRing(); setInterval(updateRing, 60000);
       renderPersonal(); renderCore(); renderCorporate(); renderReprogram();
+      planPopulateTimes(); renderPlan();
+      // Update now-line every minute
+      setInterval(() => {
+        planUpdateNowLine();
+        // Re-render plan if date changed (midnight rollover)
+        const newToday = getToday();
+        if (newToday !== todayStr) { todayStr = newToday; renderPlan(); }
+      }, 60000);
       setTimeout(() => setMode(currentMode), 100);
       
       if(currentMode === 'ritual') setRitualPhase(1, 120);
@@ -3179,7 +3673,8 @@
             }
           }
           if (changed) {
-      renderPersonal(); renderCore(); renderCorporate(); renderReprogram();
+            renderPersonal(); renderCore(); renderCorporate(); renderReprogram();
+            if (currentMode === 'plan') renderPlan();
           }
         } else if (!cloudSyncActive) {
           // Cloud is empty, push local state to cloud
