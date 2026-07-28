@@ -1674,6 +1674,7 @@
         currentMode = mode; save('mode', mode); document.body.className = `mode-${mode}`;
         document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
         document.getElementById('view' + mode.charAt(0).toUpperCase() + mode.slice(1)).classList.add('active');
+        if (mode === 'plan') { populateTimeSelects(); renderPlan(); }
         let activePill;
         pills.forEach(p => {
           if(p.dataset.mode === mode) { p.classList.add('active'); activePill = p; }
@@ -3673,8 +3674,7 @@
             }
           }
           if (changed) {
-            renderPersonal(); renderCore(); renderCorporate(); renderReprogram();
-            if (currentMode === 'plan') renderPlan();
+            renderPersonal(); renderCore(); renderCorporate(); renderReprogram(); populateTimeSelects(); renderPlan();
           }
         } else if (!cloudSyncActive) {
           // Cloud is empty, push local state to cloud
