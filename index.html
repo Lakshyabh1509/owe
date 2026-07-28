@@ -1646,6 +1646,7 @@
       let cloudSyncActive = false;
       function toFbKey(k) { return k.replace(/:/g, '__'); }
       function fromFbKey(fbKey) { return fbKey.replace(/__/g, ':'); }
+      function load(k, def) { const v = localStorage.getItem(PREFIX + k); return v ? JSON.parse(v) : def; }
 
       function save(k, v) { 
         localStorage.setItem(PREFIX + k, JSON.stringify(v)); 
