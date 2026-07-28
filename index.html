@@ -1644,10 +1644,12 @@
 
       // Helpers
       let cloudSyncActive = false;
-      function load(k, def) { const v = localStorage.getItem(PREFIX + k); return v ? JSON.parse(v) : def; }
+      function toFbKey(k) { return k.replace(/:/g, '__'); }
+      function fromFbKey(fbKey) { return fbKey.replace(/__/g, ':'); }
+
       function save(k, v) { 
         localStorage.setItem(PREFIX + k, JSON.stringify(v)); 
-        set(ref(db, 'state/' + k), v).catch(e => console.error("Firebase write error:", e));
+        set(ref(db, 'state/' + toFbKey(k)), v).catch(e => console.error("Firebase write error:", e));
       }
       function genId() { return Math.random().toString(36).substr(2, 9); }
       function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
@@ -3665,38 +3667,52 @@
         const data = snapshot.val();
         if (data) {
           let changed = false;
-          for (const k in data) {
+          for (const fbKey in data) {
+            const k = fromFbKey(fbKey);
             const currentStr = localStorage.getItem(PREFIX + k);
-            const newStr = JSON.stringify(data[k]);
+            const newStr = JSON.stringify(data[fbKey]);
             if (currentStr !== newStr) {
               localStorage.setItem(PREFIX + k, newStr);
               changed = true;
             }
           }
-          // Push any local-only keys to cloud so they survive the merge
+          // Push any local-only keys to cloud so they survive initial merge
           for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
             if (key.startsWith(PREFIX)) {
               const k = key.replace(PREFIX, '');
-              if (!(k in data)) {
-                set(ref(db, 'state/' + k), JSON.parse(localStorage.getItem(key))).catch(() => {});
+              const fbKey = toFbKey(k);
+              if (!(fbKey in data)) {
+                try {
+                  const val = JSON.parse(localStorage.getItem(key));
+                  if (val !== null && val !== undefined) {
+                    set(ref(db, 'state/' + fbKey), val).catch(() => {});
+                  }
+                } catch(e) {}
               }
             }
           }
           if (changed) {
-            renderPersonal(); renderCore(); renderCorporate(); renderReprogram(); planPopulateTimes(); renderPlan();
+            renderPersonal(); renderCore(); renderCorporate(); renderReprogram(); planPopulateTimes(); renderPlan(); updateRing();
+            const cloudMode = data['mode'];
+            if (cloudMode && cloudMode !== currentMode) {
+              setMode(cloudMode);
+            }
           }
         } else if (!cloudSyncActive) {
           // Cloud is empty, push all local state to cloud
           const allData = {};
-          for (let i=0; i<localStorage.length; i++) {
+          for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
             if (key.startsWith(PREFIX)) {
-              allData[key.replace(PREFIX, '')] = JSON.parse(localStorage.getItem(key));
+              const k = key.replace(PREFIX, '');
+              try {
+                allData[toFbKey(k)] = JSON.parse(localStorage.getItem(key));
+              } catch(e) {}
             }
           }
           if (Object.keys(allData).length > 0) {
-            set(ref(db, 'state'), allData);
+            set(ref(db, 'state'), allData).catch(e => console.error("Firebase initial sync error:", e));
           }
         }
         cloudSyncActive = true;
