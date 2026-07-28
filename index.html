@@ -99,7 +99,7 @@
     .mode-pill.active { color: #050506; }
     .mode-pill-sub { font-family: ui-monospace, monospace; font-size: 9px; opacity: 0.8; }
     .mode-slider {
-      position: absolute; top: 4px; bottom: 4px; background: #FFF; border-radius: 24px; z-index: 1;
+      position: absolute; top: 4px; bottom: 4px; left: 0; background: #FFF; border-radius: 24px; z-index: 1;
       transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), width 0.35s;
       box-shadow: 0 4px 12px rgba(255,255,255,0.15);
     }
@@ -1671,16 +1671,22 @@
       function setMode(mode) {
         currentMode = mode; save('mode', mode); document.body.className = `mode-${mode}`;
         document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-        document.getElementById('view' + mode.charAt(0).toUpperCase() + mode.slice(1)).classList.add('active');
-        if (mode === 'plan') { populateTimeSelects(); renderPlan(); }
+        const targetView = document.getElementById('view' + mode.charAt(0).toUpperCase() + mode.slice(1));
+        if (targetView) targetView.classList.add('active');
+
         let activePill;
         pills.forEach(p => {
           if(p.dataset.mode === mode) { p.classList.add('active'); activePill = p; }
           else { p.classList.remove('active'); }
         });
-        if(activePill) {
-          slider.style.width = `${activePill.offsetWidth}px`; slider.style.transform = `translateX(${activePill.offsetLeft}px)`;
+        if(activePill && slider) {
+          slider.style.width = `${activePill.offsetWidth}px`;
+          slider.style.transform = `translateX(${activePill.offsetLeft}px)`;
         }
+
+        try {
+          if (mode === 'plan') { planPopulateTimes(); renderPlan(); }
+        } catch(e) { console.error("Error rendering view:", e); }
       }
       pills.forEach(p => p.addEventListener('click', () => setMode(p.dataset.mode)));
 
@@ -3678,7 +3684,7 @@
             }
           }
           if (changed) {
-            renderPersonal(); renderCore(); renderCorporate(); renderReprogram(); populateTimeSelects(); renderPlan();
+            renderPersonal(); renderCore(); renderCorporate(); renderReprogram(); planPopulateTimes(); renderPlan();
           }
         } else if (!cloudSyncActive) {
           // Cloud is empty, push all local state to cloud
