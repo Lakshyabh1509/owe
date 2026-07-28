@@ -1647,9 +1647,7 @@
       function load(k, def) { const v = localStorage.getItem(PREFIX + k); return v ? JSON.parse(v) : def; }
       function save(k, v) { 
         localStorage.setItem(PREFIX + k, JSON.stringify(v)); 
-        if (cloudSyncActive) {
-          set(ref(db, 'state/' + k), v).catch(e => console.error("Cloud sync error:", e));
-        }
+        set(ref(db, 'state/' + k), v).catch(e => console.error("Firebase write error:", e));
       }
       function genId() { return Math.random().toString(36).substr(2, 9); }
       function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
@@ -3604,14 +3602,10 @@
         document.getElementById('cSealedDisplay').style.display = 'block';
         document.getElementById('btnCSeal').textContent = '✓ Sealed';
         document.getElementById('btnCSeal').disabled = true;
-        // Save to Firebase-synced storage via reproSave
-        const seals = JSON.parse(localStorage.getItem('aethelgard:confidenceSeals') || '[]');
+        // Save to Firebase-synced storage
+        const seals = load('confidenceSeals', []);
         seals.push({ action: text, date: new Date().toISOString() });
-        localStorage.setItem('aethelgard:confidenceSeals', JSON.stringify(seals));
-        // Sync to cloud
-        if (cloudSyncActive) {
-          try { set(ref(db, 'state/confidenceSeals'), seals).catch(() => {}); } catch(e) {}
-        }
+        save('confidenceSeals', seals);
       }
 
       function resetConfidence() {
@@ -3673,11 +3667,21 @@
               changed = true;
             }
           }
+          // Push any local-only keys to cloud so they survive the merge
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key.startsWith(PREFIX)) {
+              const k = key.replace(PREFIX, '');
+              if (!(k in data)) {
+                set(ref(db, 'state/' + k), JSON.parse(localStorage.getItem(key))).catch(() => {});
+              }
+            }
+          }
           if (changed) {
             renderPersonal(); renderCore(); renderCorporate(); renderReprogram(); populateTimeSelects(); renderPlan();
           }
         } else if (!cloudSyncActive) {
-          // Cloud is empty, push local state to cloud
+          // Cloud is empty, push all local state to cloud
           const allData = {};
           for (let i=0; i<localStorage.length; i++) {
             const key = localStorage.key(i);
