@@ -1650,6 +1650,7 @@
 
       function save(k, v) { 
         localStorage.setItem(PREFIX + k, JSON.stringify(v)); 
+        localStorage.setItem(PREFIX + 'ts:' + k, Date.now().toString());
         set(ref(db, 'state/' + toFbKey(k)), v).catch(e => console.error("Firebase write error:", e));
       }
       function genId() { return Math.random().toString(36).substr(2, 9); }
@@ -1671,8 +1672,14 @@
       const pills = document.querySelectorAll('.mode-pill');
       const slider = document.getElementById('modeSlider');
       
-      function setMode(mode) {
-        currentMode = mode; save('mode', mode); document.body.className = `mode-${mode}`;
+      function setMode(mode, isLocalChange = true) {
+        currentMode = mode;
+        if (isLocalChange) {
+          save('mode', mode);
+        } else {
+          localStorage.setItem(PREFIX + 'mode', JSON.stringify(mode));
+        }
+        document.body.className = `mode-${mode}`;
         document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
         const targetView = document.getElementById('view' + mode.charAt(0).toUpperCase() + mode.slice(1));
         if (targetView) targetView.classList.add('active');
@@ -1691,7 +1698,7 @@
           if (mode === 'plan') { planPopulateTimes(); renderPlan(); }
         } catch(e) { console.error("Error rendering view:", e); }
       }
-      pills.forEach(p => p.addEventListener('click', () => setMode(p.dataset.mode)));
+      pills.forEach(p => p.addEventListener('click', () => setMode(p.dataset.mode, true)));
 
       // Day Ring Engine
       const sunStops = [
@@ -3673,6 +3680,11 @@
             const currentStr = localStorage.getItem(PREFIX + k);
             const newStr = JSON.stringify(data[fbKey]);
             if (currentStr !== newStr) {
+              // Check if we wrote this key recently (within 5 seconds) to prevent overwrite by pending writes
+              const lastWrite = parseInt(localStorage.getItem(PREFIX + 'ts:' + k) || '0');
+              if (Date.now() - lastWrite < 5000) {
+                continue;
+              }
               localStorage.setItem(PREFIX + k, newStr);
               changed = true;
             }
@@ -3682,6 +3694,7 @@
             const key = localStorage.key(i);
             if (key.startsWith(PREFIX)) {
               const k = key.replace(PREFIX, '');
+              if (k.startsWith('ts:')) continue; // Skip local tracking timestamps
               const fbKey = toFbKey(k);
               if (!(fbKey in data)) {
                 try {
@@ -3693,12 +3706,15 @@
               }
             }
           }
+          
+          // Always keep currentMode in sync with cloud if it changes
+          const cloudMode = data['mode'];
+          if (cloudMode && cloudMode !== currentMode) {
+            setMode(cloudMode, false); // isLocalChange = false to prevent write loops
+          }
+
           if (changed) {
             renderPersonal(); renderCore(); renderCorporate(); renderReprogram(); planPopulateTimes(); renderPlan(); updateRing();
-            const cloudMode = data['mode'];
-            if (cloudMode && cloudMode !== currentMode) {
-              setMode(cloudMode);
-            }
           }
         } else if (!cloudSyncActive) {
           // Cloud is empty, push all local state to cloud
@@ -3707,6 +3723,7 @@
             const key = localStorage.key(i);
             if (key.startsWith(PREFIX)) {
               const k = key.replace(PREFIX, '');
+              if (k.startsWith('ts:')) continue;
               try {
                 allData[toFbKey(k)] = JSON.parse(localStorage.getItem(key));
               } catch(e) {}
