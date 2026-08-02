@@ -1646,12 +1646,26 @@
       let cloudSyncActive = false;
       function toFbKey(k) { return k.replace(/:/g, '__'); }
       function fromFbKey(fbKey) { return fbKey.replace(/__/g, ':'); }
-      function load(k, def) { const v = localStorage.getItem(PREFIX + k); return v ? JSON.parse(v) : def; }
-
+      // Normalize a stored record to {v, t}. Legacy raw values (no t) get t: 0.
+      function normRec(v) {
+        if (v !== null && typeof v === 'object' && !Array.isArray(v) && 'v' in v && typeof v.t === 'number') {
+          return { v: v.v, t: v.t };
+        }
+        return { v: v, t: 0 };
+      }
+      function readLocalRec(k) {
+        const raw = localStorage.getItem(PREFIX + k);
+        if (raw === null) return null;
+        try { return normRec(JSON.parse(raw)); } catch(e) { return null; }
+      }
+      function load(k, def) {
+        const rec = readLocalRec(k);
+        return rec === null ? def : rec.v;
+      }
       function save(k, v) { 
-        localStorage.setItem(PREFIX + k, JSON.stringify(v)); 
-        localStorage.setItem(PREFIX + 'ts:' + k, Date.now().toString());
-        set(ref(db, 'state/' + toFbKey(k)), v).catch(e => console.error("Firebase write error:", e));
+        const rec = { v: v, t: Date.now() };
+        localStorage.setItem(PREFIX + k, JSON.stringify(rec)); 
+        set(ref(db, 'state/' + toFbKey(k)), rec).catch(e => console.error("Firebase write error:", e));
       }
       function genId() { return Math.random().toString(36).substr(2, 9); }
       function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
@@ -1677,7 +1691,7 @@
         if (isLocalChange) {
           save('mode', mode);
         } else {
-          localStorage.setItem(PREFIX + 'mode', JSON.stringify(mode));
+          localStorage.setItem(PREFIX + 'mode', JSON.stringify({ v: mode, t: 0 }));
         }
         document.body.className = `mode-${mode}`;
         document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
@@ -3666,51 +3680,58 @@
         const newToday = getToday();
         if (newToday !== todayStr) { todayStr = newToday; renderPlan(); }
       }, 60000);
-      setTimeout(() => setMode(currentMode), 100);
+      setTimeout(() => setMode(currentMode, false), 100);
       
       if(currentMode === 'ritual') setRitualPhase(1, 120);
 
-      // Cloud Sync Engine
+      // Cloud Sync Engine — last-write-wins per key using {v, t} records.
       onValue(ref(db, 'state'), (snapshot) => {
         const data = snapshot.val();
         if (data) {
           let changed = false;
           for (const fbKey in data) {
             const k = fromFbKey(fbKey);
-            const currentStr = localStorage.getItem(PREFIX + k);
-            const newStr = JSON.stringify(data[fbKey]);
-            if (currentStr !== newStr) {
-              // Check if we wrote this key recently (within 5 seconds) to prevent overwrite by pending writes
-              const lastWrite = parseInt(localStorage.getItem(PREFIX + 'ts:' + k) || '0');
-              if (Date.now() - lastWrite < 5000) {
-                continue;
-              }
-              localStorage.setItem(PREFIX + k, newStr);
+            if (k === 'mode') continue; // handled separately below
+            const cloudRec = normRec(data[fbKey]);
+            const localRec = readLocalRec(k);
+            if (localRec === null) {
+              localStorage.setItem(PREFIX + k, JSON.stringify(cloudRec));
               changed = true;
+            } else if (cloudRec.t > localRec.t) {
+              // Cloud is newer — adopt it
+              localStorage.setItem(PREFIX + k, JSON.stringify(cloudRec));
+              changed = true;
+            } else if (cloudRec.t < localRec.t) {
+              // Local is newer — push local up (covers offline edits)
+              set(ref(db, 'state/' + fbKey), localRec).catch(() => {});
+            } else if (cloudRec.t === 0) {
+              // Both legacy (pre-timestamp) values: cloud wins on difference
+              if (JSON.stringify(cloudRec.v) !== JSON.stringify(localRec.v)) {
+                localStorage.setItem(PREFIX + k, JSON.stringify(cloudRec));
+                changed = true;
+              }
             }
           }
-          // Push any local-only keys to cloud so they survive initial merge
+          // Push any local-only keys to cloud so they survive the merge
           for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
             if (key.startsWith(PREFIX)) {
               const k = key.replace(PREFIX, '');
-              if (k.startsWith('ts:')) continue; // Skip local tracking timestamps
+              if (k.startsWith('ts:') || k === 'mode') continue;
               const fbKey = toFbKey(k);
               if (!(fbKey in data)) {
-                try {
-                  const val = JSON.parse(localStorage.getItem(key));
-                  if (val !== null && val !== undefined) {
-                    set(ref(db, 'state/' + fbKey), val).catch(() => {});
-                  }
-                } catch(e) {}
+                const rec = readLocalRec(k);
+                if (rec) set(ref(db, 'state/' + fbKey), rec).catch(() => {});
               }
             }
           }
-          
-          // Always keep currentMode in sync with cloud if it changes
-          const cloudMode = data['mode'];
-          if (cloudMode && cloudMode !== currentMode) {
-            setMode(cloudMode, false); // isLocalChange = false to prevent write loops
+
+          // Keep currentMode in sync with cloud (without write loop)
+          if (data['mode'] !== undefined) {
+            const cloudMode = normRec(data['mode']).v;
+            if (cloudMode && cloudMode !== currentMode) {
+              setMode(cloudMode, false);
+            }
           }
 
           if (changed) {
@@ -3724,9 +3745,8 @@
             if (key.startsWith(PREFIX)) {
               const k = key.replace(PREFIX, '');
               if (k.startsWith('ts:')) continue;
-              try {
-                allData[toFbKey(k)] = JSON.parse(localStorage.getItem(key));
-              } catch(e) {}
+              const rec = readLocalRec(k);
+              if (rec) allData[toFbKey(k)] = rec;
             }
           }
           if (Object.keys(allData).length > 0) {
