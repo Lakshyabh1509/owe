@@ -452,6 +452,39 @@
       color: var(--text-primary); font-weight: 600;
     }
 
+    /* Systems grid */
+    .systems-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 10px;
+    }
+    .system-card {
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+      border-radius: 10px; padding: 14px 16px;
+      transition: border-color 0.2s, background 0.2s;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .system-card:hover { border-color: rgba(255,255,255,0.15); }
+    .system-card.done { border-color: rgba(200,245,68,0.35); background: rgba(200,245,68,0.04); }
+    .system-card .sys-num {
+      font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.15em;
+      color: rgba(167,139,250,0.7);
+    }
+    .system-card .sys-title {
+      font-size: 13px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.01em;
+    }
+    .system-card .sys-desc {
+      font-size: 11px; color: var(--text-secondary); line-height: 1.55; flex: 1;
+    }
+    .system-card .sys-practice {
+      align-self: flex-start;
+      padding: 6px 12px; border-radius: 20px; cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.12); background: transparent;
+      color: var(--text-tertiary); font-size: 9px; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase; transition: all 0.2s;
+    }
+    .system-card .sys-practice:hover { border-color: rgba(200,245,68,0.4); color: var(--accent); }
+    .system-card.done .sys-practice { background: rgba(200,245,68,0.12); border-color: rgba(200,245,68,0.4); color: var(--accent); }
+
     /* Phase Stepper */
     .phase-stepper {
       display: flex; align-items: center; justify-content: center;
@@ -862,6 +895,83 @@
     .plan-event:hover .plan-event-del { opacity: 1; }
     .plan-event-del:hover { background: rgba(255,107,107,0.25); color: var(--danger); }
 
+    /* Deep Work blocks */
+    .plan-event-deep {
+      border-left-width: 4px;
+      box-shadow: 0 0 0 1px rgba(167, 139, 250, 0.15), 0 4px 20px rgba(167, 139, 250, 0.08);
+    }
+    .plan-event-deep .plan-event-title {
+      font-weight: 600; letter-spacing: -0.01em;
+    }
+    body.deep-active .day-ring-fill { stroke: #A78BFA !important; }
+    body.deep-active .urgency-banner {
+      border-color: rgba(167, 139, 250, 0.25);
+      background: rgba(167, 139, 250, 0.06);
+    }
+
+    /* Deep Work cue + focus indicator */
+    .deep-work-cue {
+      margin: 0 0 16px 0;
+      padding: 14px 18px;
+      border-radius: 12px;
+      background: rgba(167, 139, 250, 0.08);
+      border: 1px solid rgba(167, 139, 250, 0.25);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      animation: planEventIn 0.25s ease;
+    }
+    .deep-work-cue.live { border-color: rgba(167, 139, 250, 0.55); background: rgba(167, 139, 250, 0.12); }
+    .dw-cue-text { font-size: 13px; font-weight: 600; color: #C4B5FD; }
+    .dw-cue-sub { font-size: 10px; font-family: 'DM Mono', monospace; opacity: 0.55; margin-top: 3px; }
+    .dw-cue-btn {
+      flex-shrink: 0;
+      padding: 8px 14px; border-radius: 8px; border: 1px solid rgba(167,139,250,0.4);
+      background: rgba(167,139,250,0.15); color: #C4B5FD;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .dw-cue-btn:hover { background: rgba(167,139,250,0.3); color: #fff; }
+    .plan-focus-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 10px; border-radius: 20px; cursor: pointer;
+      background: rgba(167,139,250,0.12); border: 1px solid rgba(167,139,250,0.35);
+      color: #C4B5FD; font-size: 9px; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; font-family: 'DM Mono', monospace;
+    }
+    .plan-focus-chip .dot { width: 6px; height: 6px; border-radius: 50%; background: #A78BFA; animation: focus-pulse 1.6s infinite; }
+    @keyframes focus-pulse { 0%,100% { opacity: 1; box-shadow: 0 0 0 rgba(167,139,250,0.4); } 50% { opacity: 0.4; box-shadow: 0 0 8px rgba(167,139,250,0.8); } }
+
+    /* Deep Work ritual overlay */
+    .dw-overlay {
+      position: fixed; inset: 0; z-index: 999;
+      background: rgba(5,5,6,0.94);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 24px; padding: 24px; text-align: center;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .dw-overlay .breath-circle {
+      width: 140px; height: 140px;
+      border: 2px solid rgba(167,139,250,0.4);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      transition: transform 4s ease-in-out, border-color 0.3s, box-shadow 0.3s;
+    }
+    .dw-overlay .breath-circle.inhale { transform: scale(1.6); border-color: var(--success); box-shadow: 0 0 20px rgba(107,227,164,0.2); }
+    .dw-overlay .breath-circle.exhale { transform: scale(1); border-color: rgba(167,139,250,0.4); }
+    .dw-overlay .breath-text { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: var(--text-primary); text-transform: uppercase; }
+    .dw-overlay .dw-intention {
+      font-size: 15px; font-weight: 600; color: #C4B5FD; max-width: 480px; line-height: 1.5;
+    }
+    .dw-overlay .dw-count { font-size: 11px; color: var(--text-tertiary); font-family: 'DM Mono', monospace; letter-spacing: 0.1em; }
+    .dw-overlay .dw-cancel {
+      background: none; border: none; color: var(--text-tertiary);
+      font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer;
+    }
+    .dw-overlay .dw-cancel:hover { color: var(--text-primary); }
+
     /* Empty state */
     .plan-empty {
       position: absolute; top: 50%; left: 50%;
@@ -1039,6 +1149,7 @@
           <button class="repro-tab" data-repro-tab="parent">Parent Wounds</button>
           <button class="repro-tab" data-repro-tab="identity">Identity</button>
           <button class="repro-tab" data-repro-tab="audit">Daily Audit</button>
+          <button class="repro-tab" data-repro-tab="systems">Systems</button>
         </div>
       </div>
 
@@ -1318,23 +1429,23 @@
           <div class="eyebrow">DAILY AUDIT</div>
           <p style="font-size:12px;color:var(--text-secondary);margin-bottom:16px;line-height:1.6;">
             <strong>10 minutes.</strong> Three questions. No right answers — only honest ones. 
-            Come back every day and watch how your beliefs shift.
+            Evidence that you protected the Deep Work blocks. Come back every day and watch the pattern shift.
           </p>
           <div id="auditDate" style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:16px;"></div>
 
           <div class="audit-card">
-            <div class="audit-q">What belief drove my best behavior today?</div>
-            <textarea id="auditQ1" rows="3" placeholder="e.g. I believed this effort would compound, so I did the work even when I didn't feel like it."></textarea>
+            <div class="audit-q">Most Important Task (Deep Work) →</div>
+            <textarea id="auditQ1" rows="3" placeholder="e.g. Finish the pricing model before anything else. It gets the first 90 protected minutes."></textarea>
           </div>
 
           <div class="audit-card">
-            <div class="audit-q">What belief held me back today?</div>
-            <textarea id="auditQ2" rows="3" placeholder="e.g. I believed I needed to feel ready before starting, so I procrastinated."></textarea>
+            <div class="audit-q">If distraction appears I will →</div>
+            <textarea id="auditQ2" rows="3" placeholder="e.g. Pause, take three breaths, and return to the block. Phone stays in another room."></textarea>
           </div>
 
           <div class="audit-card">
-            <div class="audit-q">What's the one belief I want to strengthen tomorrow?</div>
-            <textarea id="auditQ3" rows="3" placeholder="e.g. I am the kind of person who starts before I'm ready."></textarea>
+            <div class="audit-q">Did I protect the deep work block? Evidence:</div>
+            <textarea id="auditQ3" rows="3" placeholder="e.g. 90-minute block untouched from 8:00–9:30. Shipped the asset. No phone in the room."></textarea>
           </div>
 
           <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;">
@@ -1348,6 +1459,19 @@
           <div class="eyebrow">📖 AUDIT HISTORY</div>
           <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">Scroll through past entries and watch your beliefs evolve.</p>
           <div id="auditHistory"></div>
+        </div>
+      </div>
+
+      <!-- Systems -->
+      <div id="repro-panel-systems" class="repro-panel">
+        <div class="glass-card">
+          <div class="eyebrow">SYSTEMS — DEEP WORK OPERATING PRINCIPLES</div>
+          <p style="font-size:12px;color:var(--text-secondary);margin-bottom:16px;line-height:1.6;">
+            These are the rules the 0.1% run on. Tap <strong>Practiced today</strong> for every principle you actually executed —
+            evidence compounds. Synced to cloud like everything else.
+          </p>
+          <div id="systemsGrid" class="systems-grid"></div>
+          <div style="margin-top:14px;font-size:10px;color:var(--muted);font-family:var(--mono);" id="systemsCount"></div>
         </div>
       </div>
     </div>
@@ -1374,8 +1498,8 @@
           <div class="plan-cat-chip selected" data-cat="Work" data-color="#5B8DEF">
             <div class="plan-cat-dot" style="background:#5B8DEF"></div>WORK
           </div>
-          <div class="plan-cat-chip" data-cat="Focus" data-color="#A78BFA">
-            <div class="plan-cat-dot" style="background:#A78BFA"></div>FOCUS
+          <div class="plan-cat-chip" data-cat="Deep Work" data-color="#A78BFA">
+            <div class="plan-cat-dot" style="background:#A78BFA"></div>DEEP WORK
           </div>
           <div class="plan-cat-chip" data-cat="Body" data-color="#6BE3A4">
             <div class="plan-cat-dot" style="background:#6BE3A4"></div>BODY
@@ -1406,6 +1530,15 @@
             </div>
             <button class="pf-add-btn" id="planAdd">+ Add Block</button>
           </div>
+        </div>
+
+        <!-- Deep Work cue -->
+        <div id="deepWorkCue" class="deep-work-cue" style="display:none;">
+          <div>
+            <div class="dw-cue-text" id="deepWorkCueText">Deep Work block approaching</div>
+            <div class="dw-cue-sub" id="deepWorkCueSub"></div>
+          </div>
+          <button class="dw-cue-btn" id="btnEnterDeep">Enter Focus State →</button>
         </div>
 
         <!-- Timeline -->
@@ -1638,9 +1771,23 @@
         "Comfort is the enemy of greatness. Your time is running out.",
         "Your bloodline changes here, or it doesn't change at all.",
         "You are trading a day of your life for this. Make it worth it.",
-        "Family · Health · Career — every action I take feeds one of these."
+        "Family · Health · Career — every action I take feeds one of these.",
+        "Deep Work is non-negotiable. Protect the block or the block owns you.",
+        "Front-load the hardest cognitive work. Afternoon you is already compromised.",
+        "Batch the shallow. Context switching is a tax you pay with your future.",
+        "Boredom is training. Reach for the phone and you weaken the muscle.",
+        "Any-benefit is the enemy. If it is not high-ROI, it is noise.",
+        "Shutdown is a ritual. Incomplete open loops steal tomorrow's focus.",
+        "Your environment is either a cue for deep work or a cue for distraction.",
+        "Treat the deep work block like a meeting with someone you respect.",
+        "90 minutes of pure focus > 4 hours of fragmented motion.",
+        "The cost of interruption is not the minutes lost — it is the depth you never reach."
       ];
       document.getElementById('urgencyBanner').textContent = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+      setInterval(() => {
+        const banner = document.getElementById('urgencyBanner');
+        if (banner) banner.textContent = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+      }, 28000);
 
       // Helpers
       let cloudSyncActive = false;
@@ -1710,6 +1857,7 @@
 
         try {
           if (mode === 'plan') { planPopulateTimes(); renderPlan(); }
+          else { document.body.classList.remove('deep-active'); }
         } catch(e) { console.error("Error rendering view:", e); }
       }
       pills.forEach(p => p.addEventListener('click', () => setMode(p.dataset.mode, true)));
@@ -2203,6 +2351,7 @@
             if (name === 'parent') renderParentWounds();
             if (name === 'identity') renderIdentity();
             if (name === 'audit') renderDailyAudit();
+            if (name === 'systems') renderSystems();
           });
         });
       }
@@ -2978,11 +3127,59 @@
           if (!hasContent) return '';
           return `<div class="audit-history-entry">
             <div class="ah-date">${date}</div>
-            ${a.q1 ? `<div class="ah-item"><strong>Drove best behavior:</strong> ${esc(a.q1)}</div>` : ''}
-            ${a.q2 ? `<div class="ah-item"><strong>Held me back:</strong> ${esc(a.q2)}</div>` : ''}
-            ${a.q3 ? `<div class="ah-item"><strong>Strengthen tomorrow:</strong> ${esc(a.q3)}</div>` : ''}
+            ${a.q1 ? `<div class="ah-item"><strong>MIT (Deep Work):</strong> ${esc(a.q1)}</div>` : ''}
+            ${a.q2 ? `<div class="ah-item"><strong>If distraction appears:</strong> ${esc(a.q2)}</div>` : ''}
+            ${a.q3 ? `<div class="ah-item"><strong>Protected the block — evidence:</strong> ${esc(a.q3)}</div>` : ''}
           </div>`;
         }).join('');
+      }
+
+      // ─── SYSTEMS (Deep Work Operating Principles) ───
+      const DEEP_PRINCIPLES = [
+        { id: 'protect-block',    title: 'Protect the Block',          desc: 'Deep Work is non-negotiable. It is a meeting with the person you are becoming. Cancel anything else first.' },
+        { id: 'front-load',       title: 'Front-Load the Hard',        desc: 'Hardest cognitive work goes in the first hours. Afternoon you is already compromised — do not trust him.' },
+        { id: 'batch-shallow',    title: 'Batch the Shallow',          desc: 'Email, calls, admin — one block, once a day. Context switching is a tax you pay with your future.' },
+        { id: 'boredom-training', title: 'Boredom Is Training',        desc: 'Every time you reach for the phone instead of the problem, the deep work muscle weakens. Sit in the discomfort.' },
+        { id: 'any-benefit',      title: 'Any-Benefit Is the Enemy',   desc: 'If it is not high-ROI, it is noise. A 2% opportunity is a 100% distraction dressed in potential.' },
+        { id: 'shutdown-ritual',  title: 'Shutdown Ritual',            desc: 'Close every open loop before you stop. Incomplete tasks steal tomorrow\'s focus before tomorrow begins.' },
+        { id: 'environment-cue',  title: 'Environment as Cue',         desc: 'Your desk is either a cue for deep work or a cue for distraction. Remove the phone. Curate the space.' },
+        { id: 'treat-as-meeting', title: 'Treat Blocks Like Meetings', desc: 'Block it, protect it, show up. A block you can cancel is not a block — it is a suggestion.' },
+        { id: '90-over-4',        title: '90 Minutes > 4 Hours',       desc: 'Pure, unbroken depth beats fragmented motion every time. One sprint, fully protected, is the unit of work.' },
+        { id: 'interruption-cost',title: 'Cost of Interruption',       desc: 'An interruption does not cost the minutes lost. It costs the depth you never reach again that session.' }
+      ];
+
+      function renderSystems() {
+        const grid = document.getElementById('systemsGrid');
+        const countEl = document.getElementById('systemsCount');
+        if (!grid) return;
+        const today = getToday();
+        const practiced = load('deepPrinciples:' + today, {});
+        const doneCount = Object.keys(practiced).length;
+
+        grid.innerHTML = DEEP_PRINCIPLES.map((p, i) => `
+          <div class="system-card${practiced[p.id] ? ' done' : ''}" data-id="${p.id}">
+            <div class="sys-num">PRINCIPLE ${String(i+1).padStart(2,'0')}</div>
+            <div class="sys-title">${esc(p.title)}</div>
+            <div class="sys-desc">${esc(p.desc)}</div>
+            <button class="sys-practice">${practiced[p.id] ? '✓ Practiced today' : 'Practiced today'}</button>
+          </div>
+        `).join('');
+
+        if (countEl) {
+          countEl.textContent = doneCount > 0
+            ? `${doneCount} / ${DEEP_PRINCIPLES.length} principles practiced today — ${doneCount === DEEP_PRINCIPLES.length ? 'complete system. You are the 0.1%.' : 'keep stacking.'}`
+            : '0 / 10 practiced today — start with one.';
+        }
+
+        grid.querySelectorAll('.system-card').forEach(card => {
+          card.querySelector('.sys-practice').onclick = () => {
+            const id = card.dataset.id;
+            const data = load('deepPrinciples:' + today, {});
+            if (data[id]) { delete data[id]; } else { data[id] = true; }
+            save('deepPrinciples:' + today, data);
+            renderSystems();
+          };
+        });
       }
 
       // ─── END REPROGRAM ENGINE ───
@@ -3090,7 +3287,182 @@
           const rh = Math.floor(rem/60), rm = rem%60;
           remEl.textContent = `${rh}h ${rm}m left`;
         } else if(remEl) { remEl.textContent = ''; }
+
+        // Deep Work detection: active + upcoming block
+        const blocks = load('plan:' + getToday(), []);
+        const deepActive = blocks.some(b =>
+          (b.cat === 'Deep Work' || b.cat === 'Focus') && nowMins >= b.start && nowMins < b.end);
+        document.body.classList.toggle('deep-active', deepActive);
+
+        // Deep Work cue: show when a deep block is active or starts within 45 min
+        const cue = document.getElementById('deepWorkCue');
+        const cueText = document.getElementById('deepWorkCueText');
+        const cueSub = document.getElementById('deepWorkCueSub');
+        if (cue && cueText && cueSub) {
+          const activeBlock = blocks.find(b =>
+            (b.cat === 'Deep Work' || b.cat === 'Focus') && nowMins >= b.start && nowMins < b.end);
+          const nextBlock = blocks.find(b =>
+            (b.cat === 'Deep Work' || b.cat === 'Focus') && b.start > nowMins);
+          if (activeBlock) {
+            cue.style.display = 'flex';
+            cue.classList.add('live');
+            cueText.textContent = '🔒 Deep Work is LIVE — protect it';
+            cueSub.textContent = `${planFmt(activeBlock.start)} – ${planFmt(activeBlock.end)} · ends in ${Math.max(1, Math.ceil((activeBlock.end - nowMins)/60))}m`;
+          } else if (nextBlock && nextBlock.start - nowMins <= 45) {
+            cue.style.display = 'flex';
+            cue.classList.remove('live');
+            cueText.textContent = 'Deep Work block approaching';
+            cueSub.textContent = `${esc(nextBlock.label)} · starts in ${Math.max(1, Math.round((nextBlock.start - nowMins)/60))}m`;
+          } else {
+            cue.style.display = 'none';
+          }
+        }
+
+        // Focus mode chip
+        updateFocusChip();
       }
+
+      // Focus mode: active session tracking
+      let focusSession = null;
+      let focusChipEl = null;
+      function updateFocusChip() {
+        if (!focusChipEl) {
+          const wrap = document.querySelector('.plan-stats-row');
+          if (!wrap) return;
+          focusChipEl = document.createElement('div');
+          focusChipEl.className = 'plan-focus-chip';
+          focusChipEl.style.display = 'none';
+          focusChipEl.title = 'Click to end focus session';
+          focusChipEl.innerHTML = '<span class="dot"></span><span id="focusChipLabel"></span>';
+          focusChipEl.onclick = () => endFocusSession();
+          wrap.appendChild(focusChipEl);
+        }
+        // Restore an in-progress session after reload
+        if (!focusSession) {
+          const sessions = load('deepSessions:' + getToday(), []);
+          const open = sessions[sessions.length - 1];
+          if (open && open.end === null) focusSession = open;
+        }
+        const lbl = document.getElementById('focusChipLabel');
+        if (focusSession) {
+          const mins = Math.max(1, Math.round((Date.now() - focusSession.start) / 60000));
+          if (lbl) lbl.textContent = `🔒 Focus ${mins}m`;
+          focusChipEl.style.display = 'inline-flex';
+        } else {
+          focusChipEl.style.display = 'none';
+        }
+      }
+
+      function enterDeepWorkState() {
+        const blocks = load('plan:' + getToday(), []);
+        const nowMins = new Date().getHours()*60 + new Date().getMinutes();
+        const activeBlock = blocks.find(b =>
+          (b.cat === 'Deep Work' || b.cat === 'Focus') && nowMins >= b.start && nowMins < b.end);
+        const nextBlock = blocks.find(b =>
+          (b.cat === 'Deep Work' || b.cat === 'Focus') && b.start > nowMins);
+        const intention = (activeBlock || nextBlock) ? (activeBlock || nextBlock).label : 'Protected deep work';
+
+        // 75-second micro ritual: 3 breaths (~45s) + intention (~30s)
+        const overlay = document.createElement('div');
+        overlay.className = 'dw-overlay';
+        overlay.innerHTML = `
+          <div class="breath-circle" id="dwBreathCircle">
+            <span class="breath-text" id="dwBreathText">PREPARE</span>
+          </div>
+          <div class="dw-count" id="dwCount"></div>
+          <button class="dw-cancel" id="dwCancel">CANCEL</button>
+        `;
+        document.body.appendChild(overlay);
+
+        const circle = overlay.querySelector('#dwBreathCircle');
+        const text = overlay.querySelector('#dwBreathText');
+        const count = overlay.querySelector('#dwCount');
+        let cancelled = false;
+        overlay.querySelector('#dwCancel').onclick = () => {
+          cancelled = true;
+          overlay.remove();
+        };
+
+        const INHALE = 4000, HOLD = 4000, EXHALE = 5000;
+        const breath = (i) => {
+          if (cancelled) return;
+          if (i > 3) {
+            // Intention phase
+            circle.className = 'breath-circle';
+            text.textContent = 'INTENTION';
+            count.textContent = 'State your intention';
+            overlay.innerHTML = `
+              <div class="breath-circle" id="dwBreathCircle">
+                <span class="breath-text" id="dwBreathText">INTENTION</span>
+              </div>
+              <div class="dw-intention">"${esc(intention)}"</div>
+              <div class="dw-count" id="dwCount"></div>
+              <button class="dw-cancel" id="dwCancel">CANCEL</button>
+            `;
+            overlay.querySelector('#dwCancel').onclick = () => { cancelled = true; overlay.remove(); };
+            let t = 30;
+            const timer = setInterval(() => {
+              if (cancelled) { clearInterval(timer); return; }
+              t--;
+              const c = overlay.querySelector('#dwCount');
+              if (c) c.textContent = t > 0 ? `Locking in… ${t}s` : '';
+              if (t <= 0) {
+                clearInterval(timer);
+                if (!cancelled) completeFocusEntry(overlay, intention);
+              }
+            }, 1000);
+            return;
+          }
+          count.textContent = `Breath ${i} of 3`;
+          circle.className = 'breath-circle inhale'; text.textContent = 'INHALE';
+          setTimeout(() => {
+            if (cancelled) return;
+            circle.className = 'breath-circle'; text.textContent = 'HOLD';
+            setTimeout(() => {
+              if (cancelled) return;
+              circle.className = 'breath-circle exhale'; text.textContent = 'EXHALE';
+              setTimeout(() => breath(i+1), EXHALE);
+            }, HOLD);
+          }, INHALE);
+        };
+        breath(1);
+      }
+
+      function completeFocusEntry(overlay, intention) {
+        overlay.remove();
+        const today = getToday();
+        const sessions = load('deepSessions:' + today, []);
+        const id = genId();
+        sessions.push({ id, start: Date.now(), intention, end: null });
+        save('deepSessions:' + today, sessions);
+        focusSession = sessions[sessions.length - 1];
+        updateFocusChip();
+        const cue = document.getElementById('deepWorkCue');
+        if (cue) { cue.style.display = 'none'; }
+      }
+
+      function endFocusSession() {
+        if (!focusSession) return;
+        const today = getToday();
+        const sessions = load('deepSessions:' + today, []);
+        const s = sessions.find(x => x.id === focusSession.id);
+        if (s) {
+          s.end = Date.now();
+          save('deepSessions:' + today, sessions);
+        }
+        focusSession = null;
+        updateFocusChip();
+        const cue = document.getElementById('deepWorkCue');
+        if (cue) {
+          cue.style.display = 'flex';
+          cue.classList.add('live');
+          document.getElementById('deepWorkCueText').textContent = '✓ Session logged — Deep Work complete';
+          document.getElementById('deepWorkCueSub').textContent = 'Evidence captured. Review it in tomorrow\'s audit.';
+          setTimeout(() => { cue.style.display = 'none'; }, 6000);
+        }
+      }
+
+      document.getElementById('btnEnterDeep').onclick = enterDeepWorkState;
 
       function renderPlan() {
         const today = getToday();
@@ -3182,19 +3554,29 @@
           const col = b.color || '#5B8DEF';
           const top = ((b.start - PLAN_START*60)/60)*HH;
           const height = Math.max(((b.end-b.start)/60)*HH - 2, HH*0.38);
+          const isDeep = (b.cat === 'Deep Work' || b.cat === 'Focus');
 
           const el = document.createElement('div');
-          el.className = 'plan-event';
+          el.className = 'plan-event' + (isDeep ? ' plan-event-deep' : '');
           el.style.cssText = `top:${top}px;height:${height}px;border-left-color:${col};background:${hexToRgba(col, 0.09)};`;
 
           const showCat = height > 38;
           const showTime = height > 28;
-          el.innerHTML = `
-            ${showCat && b.cat ? `<div class="plan-event-cat" style="color:${col}">${esc(b.cat)}</div>` : ''}
-            <div class="plan-event-title">${esc(b.label)}</div>
-            ${showTime ? `<div class="plan-event-time">${planFmt(b.start)} – ${planFmt(b.end)} · ${planDuration(b.start,b.end)}</div>` : ''}
-            <button class="plan-event-del" title="Remove">✕</button>
-          `;
+          if (isDeep) {
+            el.innerHTML = `
+              ${showCat ? `<div class="plan-event-cat" style="color:${col}">🔒 ${esc(b.cat || 'DEEP WORK')}</div>` : ''}
+              <div class="plan-event-title">${esc(b.label)}</div>
+              ${showTime ? `<div class="plan-event-time">${planFmt(b.start)} – ${planFmt(b.end)} · ${planDuration(b.start,b.end)}</div>` : ''}
+              <button class="plan-event-del" title="Remove">✕</button>
+            `;
+          } else {
+            el.innerHTML = `
+              ${showCat && b.cat ? `<div class="plan-event-cat" style="color:${col}">${esc(b.cat)}</div>` : ''}
+              <div class="plan-event-title">${esc(b.label)}</div>
+              ${showTime ? `<div class="plan-event-time">${planFmt(b.start)} – ${planFmt(b.end)} · ${planDuration(b.start,b.end)}</div>` : ''}
+              <button class="plan-event-del" title="Remove">✕</button>
+            `;
+          }
 
           el.querySelector('.plan-event-del').onclick = ev => {
             ev.stopPropagation();
