@@ -107,7 +107,15 @@
     body.mode-confidence .mode-slider { background: var(--accent); }
 
     /* Day Ring Container */
-    .day-ring-container { display: flex; justify-content: center; align-items: center; gap: 26px; margin-bottom: 32px; flex-wrap: wrap; }
+    .day-ring-container { display: flex; justify-content: center; align-items: center; gap: 26px; margin-bottom: 32px; flex-wrap: wrap; position: relative; }
+    .chrome-min-btn {
+      position: absolute; top: -10px; right: 2px;
+      width: 26px; height: 26px; border-radius: 8px; cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03);
+      color: var(--text-tertiary); font-size: 11px; transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .chrome-min-btn:hover { color: #fff; border-color: rgba(255,255,255,0.25); }
 
     .day-ring-left { position: relative; width: 144px; height: 144px; display: flex; justify-content: center; align-items: center; flex-shrink: 0; }
     .day-ring-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
@@ -997,6 +1005,113 @@
       .plan-hour-label { left: -46px; width: 40px; font-size: 8.5px; }
       .pf-time { width: 72px; }
     }
+
+    /* ═══════════ KAIZEN OS ═══════════ */
+    .ka-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .ka-title { font-size: 15px; font-weight: 800; letter-spacing: 0.16em; color: #C8F544; text-shadow: 0 0 16px rgba(200,245,68,0.25); }
+    .ka-sub { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.14em; color: var(--text-tertiary); margin-top: 4px; }
+    .ka-actions { display: flex; gap: 8px; }
+    .ka-toggle {
+      padding: 7px 14px; border-radius: 20px; cursor: pointer;
+      font-size: 9px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase;
+      border: 1px solid rgba(255,255,255,0.1); background: transparent;
+      color: var(--text-tertiary); transition: all 0.2s; font-family: inherit;
+    }
+    .ka-toggle:hover { color: #fff; border-color: rgba(255,255,255,0.25); }
+    .ka-toggle.active { background: rgba(200,245,68,0.12); border-color: rgba(200,245,68,0.4); color: var(--accent); box-shadow: 0 0 14px rgba(200,245,68,0.12); }
+    .ka-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; }
+    .ka-card { padding: 18px; }
+    .ka-eyebrow { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .ka-eyebrow .ttl { font-size: 10px; font-weight: 800; letter-spacing: 0.18em; color: var(--text-secondary); text-transform: uppercase; }
+    .ka-eyebrow .tag { font-family: 'DM Mono', monospace; font-size: 8px; color: var(--text-tertiary); letter-spacing: 0.08em; }
+    .ka-dump-item {
+      display: flex; align-items: center; gap: 8px;
+      padding: 7px 10px; margin-bottom: 5px;
+      background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 8px; font-size: 11.5px; color: var(--text-secondary);
+      animation: planEventIn 0.2s ease;
+    }
+    .ka-dump-item .txt { flex: 1; }
+    .ka-dump-item .del { width: 16px; height: 16px; border-radius: 4px; border: none; background: rgba(0,0,0,0.3); color: rgba(255,255,255,0.35); font-size: 9px; cursor: pointer; }
+    .ka-dump-item .del:hover { background: rgba(255,107,107,0.25); color: var(--danger); }
+    .ka-rows { display: flex; flex-direction: column; gap: 5px; }
+    .ka-hl-title { font-size: 12.5px; font-weight: 700; color: #fff; margin: 8px 0; }
+    .ka-chip {
+      display: inline-block; padding: 6px 11px; border-radius: 16px;
+      font-size: 10px; font-weight: 600; cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.02);
+      color: var(--text-tertiary); transition: all 0.18s; margin: 0 5px 5px 0;
+    }
+    .ka-chip:hover { color: #fff; border-color: rgba(255,255,255,0.3); }
+    .ka-chip.on { background: rgba(200,245,68,0.14); border-color: rgba(200,245,68,0.5); color: var(--accent); }
+    .ka-chip.locked { opacity: 0.55; }
+    .ka-sprint-display {
+      font-family: 'DM Mono', monospace; font-size: 40px; font-weight: 800;
+      text-align: center; letter-spacing: -0.02em; color: rgba(255,255,255,0.92);
+      line-height: 1; margin: 10px 0 4px; font-variant-numeric: tabular-nums;
+    }
+    .ka-sprint-display.running { color: #6BE3A4; text-shadow: 0 0 20px rgba(107,227,164,0.35); }
+    .ka-sprint-sub { text-align: center; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.14em; color: var(--text-tertiary); margin-bottom: 6px; }
+    .ka-progress { height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; margin: 12px 0; overflow: hidden; }
+    .ka-progress-fill { height: 100%; background: linear-gradient(90deg, rgba(200,245,68,0.7), #C8F544); border-radius: 2px; transition: width 1s linear; }
+    .ka-est-row { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; margin: 10px 0 4px; }
+    .ka-btns { display: flex; gap: 7px; justify-content: center; margin-top: 10px; flex-wrap: wrap; }
+    .ka-btn {
+      padding: 8px 15px; border-radius: 9px; cursor: pointer;
+      font-size: 9.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+      border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04);
+      color: var(--text-primary); transition: all 0.2s; font-family: inherit;
+    }
+    .ka-btn:hover { background: rgba(255,255,255,0.12); }
+    .ka-btn.play { background: rgba(107,227,164,0.14); border-color: rgba(107,227,164,0.4); color: #6BE3A4; }
+    .ka-btn.pause { background: rgba(242,192,120,0.12); border-color: rgba(242,192,120,0.35); color: #F2C063; }
+    .ka-btn.stop { background: rgba(255,107,107,0.12); border-color: rgba(255,107,107,0.35); color: var(--danger); }
+    .ka-verdict {
+      margin-top: 12px; padding: 12px 14px; border-radius: 10px;
+      background: rgba(200,245,68,0.06); border: 1px solid rgba(200,245,68,0.16);
+      font-size: 11px; line-height: 1.6; color: var(--text-secondary); display: none;
+    }
+    .ka-verdict.show { display: block; animation: planEventIn 0.25s ease; }
+    .ka-state { text-align: center; font-size: 9.5px; letter-spacing: 0.12em; color: var(--text-tertiary); text-transform: uppercase; font-family: 'DM Mono', monospace; }
+    .ka-stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 8px; margin-bottom: 14px; }
+    .ka-stat { padding: 12px 14px; border-radius: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); }
+    .ka-stat .v { font-size: 19px; font-weight: 800; color: #C8F544; letter-spacing: -0.02em; }
+    .ka-stat .l { font-size: 8px; letter-spacing: 0.12em; color: var(--text-tertiary); margin-top: 4px; font-family: 'DM Mono', monospace; }
+    .ka-bar-row { margin-bottom: 10px; }
+    .ka-bar-top { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-secondary); margin-bottom: 4px; }
+    .ka-bar { height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden; }
+    .ka-bar-fill { height: 100%; border-radius: 3px; transition: width 0.8s cubic-bezier(0.22,1,0.36,1); }
+    .ka-week { display: flex; gap: 6px; }
+    .ka-week-day { flex: 1; padding: 9px 4px; border-radius: 9px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); text-align: center; }
+    .ka-week-day .wd { font-family: 'DM Mono', monospace; font-size: 8.5px; color: var(--text-tertiary); letter-spacing: 0.06em; }
+    .ka-week-day .wf { font-family: 'DM Mono', monospace; font-size: 9px; margin-top: 4px; }
+    .ka-week-day .wk-bar { height: 4px; background: rgba(255,255,255,0.05); border-radius: 2px; margin: 5px auto 0; overflow: hidden; max-width: 30px; }
+    .ka-week-day .wk-fill { height: 100%; background: #C8F544; border-radius: 2px; }
+    .ka-insight {
+      margin-top: 14px; padding: 12px 14px; border-radius: 10px;
+      background: rgba(107,227,164,0.05); border: 1px solid rgba(107,227,164,0.14);
+      font-size: 11px; line-height: 1.7; color: var(--text-secondary);
+    }
+    .ka-insight b { color: #6BE3A4; }
+    .ka-logline { display: flex; align-items: center; gap: 8px; font-size: 11px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.04); color: var(--text-secondary); }
+    .ka-logline .diff { margin-left: auto; font-family: 'DM Mono', monospace; font-size: 9px; padding: 3px 7px; border-radius: 6px; }
+    .ka-logline .diff.over { color: #FF6B6B; background: rgba(255,107,107,0.08); }
+    .ka-logline .diff.under { color: #6BE3A4; background: rgba(107,227,164,0.08); }
+    .ka-logline .diff.on { color: var(--text-tertiary); background: rgba(255,255,255,0.05); }
+
+    /* Chrome collapse */
+    .chrome-mini-strip { display: none; }
+    body.chrome-min .chrome-mini-strip { display: flex; }
+    body.chrome-min .dash-title, body.chrome-min .urgency-banner, body.chrome-min .day-ring-container { display: none; }
+    .chrome-mini-strip {
+      align-items: center; justify-content: center; gap: 10px;
+      font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.12em;
+      color: var(--text-tertiary); margin-bottom: 18px; flex-wrap: wrap;
+    }
+    .chrome-mini-strip .cm-mode { color: var(--accent); }
+    .ka-dash-row { margin-bottom: 12px; }
+    .ka-line { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 9px; background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.05); font-size: 11.5px; color: var(--text-secondary); margin-bottom: 5px; }
+    .ka-line .g { margin-left: auto; font-family: 'DM Mono', monospace; font-size: 9px; color: #C8F544; }
   </style>
 </head>
 <body>
@@ -1023,10 +1138,12 @@
           <div class="mode-pill" data-mode="plan">PLAN<span class="mode-pill-sub">📋 SCHEDULE</span></div>
           <div class="mode-pill" data-mode="confidence">CONFIDENCE<span class="mode-pill-sub">⚡ KAEL VOSS</span></div>
           <div class="mode-pill" data-mode="ritual">RITUAL<span class="mode-pill-sub">✨ SEAL</span></div>
+          <div class="mode-pill" data-mode="kaizen">KAIZEN<span class="mode-pill-sub">⚡ OS</span></div>
         </div>
       </div>
 
       <div class="day-ring-container">
+        <button class="chrome-min-btn" id="chromeMinBtn" title="Collapse dashboard chrome"></button>
         <div class="day-ring-left">
           <svg viewBox="0 0 120 120" class="day-ring-svg">
             <circle cx="60" cy="60" r="52" class="day-ring-track"></circle>
@@ -1045,6 +1162,12 @@
           <div class="ring-range" style="font-family: ui-monospace, monospace; font-size: 10px; color: var(--text-tertiary); margin-top: 4px;">8:00 AM – 12:00 AM</div>
           <div id="ringReproBadge" style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);margin-top:4px;min-height:14px;"></div>
         </div>
+      </div>
+
+      <div class="chrome-mini-strip" id="chromeMiniStrip">
+        <span class="cm-mode" id="cmMode">AETHELGARD</span>
+        <span id="cmClock">--:--</span>
+        <span id="cmRemaining">--h --m</span>
       </div>
     </div>
 
@@ -1719,6 +1842,117 @@
         </div>
       </div>
     </div>
+
+    <!-- KAIZEN OS MODE -->
+    <div id="viewKaizen" class="view-section">
+      <div class="glass-card ka-card">
+        <div class="ka-head">
+          <div>
+            <div class="ka-title">KAIZEN OS</div>
+            <div class="ka-sub">CONTINUOUS MICRO-IMPROVEMENT · ZERO GUILT · SYNCED TO CLOUD</div>
+          </div>
+          <div class="ka-actions">
+            <button class="ka-toggle" id="kaModeSimple">⚡ Simple</button>
+            <button class="ka-toggle" id="kaModeAdvanced">⚙ Advanced</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="ka-stat-row" style="grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));">
+        <div class="ka-stat"><div class="v" id="kaStatDumps">0</div><div class="l">BRAIN DUMPS</div></div>
+        <div class="ka-stat"><div class="v" id="kaStatHighlight" style="font-size:14px;padding-top:5px;">—</div><div class="l">HIGHLIGHT</div></div>
+        <div class="ka-stat"><div class="v" id="kaStatSprints">0</div><div class="l">SPRINTS DONE</div></div>
+        <div class="ka-stat"><div class="v" id="kaStatFocusMin">0</div><div class="l">FOCUS MIN</div></div>
+        <div class="ka-stat"><div class="v" id="kaStatFireMin">0</div><div class="l">FIREFIGHT MIN</div></div>
+      </div>
+
+      <div id="kaSimpleWrap">
+        <div class="ka-grid">
+          <!-- Brain Dump -->
+          <div class="glass-card ka-card">
+            <div class="ka-eyebrow"><span>🧠</span><span class="ttl">Brain Dump</span><span class="tag">CLEAR THE CLUTTER</span></div>
+            <div class="add-row">
+              <input type="text" id="kaDumpInput" class="input-field" placeholder="One thought per line. Dump everything.">
+              <button id="kaDumpAdd" class="btn">+ Dump</button>
+            </div>
+            <div id="kaDumpList" class="ka-rows" style="margin-top:12px;"></div>
+            <button id="kaDumpClear" class="ka-btn" style="width:100%; margin-top:10px;">✕ Clear all dumps</button>
+          </div>
+
+          <!-- Daily Highlight -->
+          <div class="glass-card ka-card">
+            <div class="ka-eyebrow"><span>🎯</span><span class="ttl">Daily Highlight</span><span class="tag">ONE WIN THAT MAKES TODAY A WIN</span></div>
+            <div id="kaHighlightArea"></div>
+          </div>
+
+          <!-- Sprint Timer -->
+          <div class="glass-card ka-card">
+            <div class="ka-eyebrow"><span>⚡</span><span class="ttl">Sprint Timer</span><span class="tag">ENERGY-BASED · NOT CLOCK-BASED</span></div>
+            <div class="add-row">
+              <input type="text" id="kaSprintInput" class="input-field" placeholder="What are you sprinting on?">
+            </div>
+            <div class="ka-est-row" id="kaTypeRow" style="margin-top:8px;">
+              <button class="ka-chip active" data-type="focus">✦ MEANINGFUL</button>
+              <button class="ka-chip" data-type="fire">🧯 FIRE-FIGHTING</button>
+            </div>
+            <div class="ka-est-row" id="kaEstRow">
+              <button class="ka-chip" data-min="15">15m</button>
+              <button class="ka-chip active" data-min="30">30m</button>
+              <button class="ka-chip" data-min="45">45m</button>
+              <button class="ka-chip" data-min="60">60m</button>
+              <button class="ka-chip" data-min="90">90m</button>
+            </div>
+            <div class="ka-state" id="kaSprintState">IDLE</div>
+            <div class="ka-sprint-display" id="kaSprintDisplay">00:00</div>
+            <div class="ka-progress"><div class="ka-progress-fill" id="kaSprintFill" style="width:0%"></div></div>
+            <div class="ka-btns">
+              <button class="ka-btn play" id="kaSprintStart">▶ Start</button>
+              <button class="ka-btn pause" id="kaSprintPause" style="display:none;">⏸ Pause</button>
+              <button class="ka-btn stop" id="kaSprintStop" style="display:none;">⏹ End</button>
+            </div>
+            <div class="ka-verdict" id="kaVerdict"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="kaAdvancedWrap" style="display:none;">
+        <div class="ka-grid">
+          <!-- Momentum -->
+          <div class="glass-card ka-card">
+            <div class="ka-eyebrow"><span>📈</span><span class="ttl">Momentum</span><span class="tag">COLOR-CODED · LIVE</span></div>
+            <div class="ka-bar-row">
+              <div class="ka-bar-top"><span>Today's dumps cleared</span><span id="kaBarDumpsV">0/0</span></div>
+              <div class="ka-bar"><div class="ka-bar-fill" id="kaBarDumps" style="width:0%;background:#C8F544;"></div></div>
+            </div>
+            <div class="ka-bar-row">
+              <div class="ka-bar-top"><span>Highlight locked</span><span id="kaBarHlV">0/1</span></div>
+              <div class="ka-bar"><div class="ka-bar-fill" id="kaBarHl" style="width:0%;background:#A78BFA;"></div></div>
+            </div>
+            <div class="ka-bar-row">
+              <div class="ka-bar-top"><span>Focused sprints</span><span id="kaBarSpV">0</span></div>
+              <div class="ka-bar"><div class="ka-bar-fill" id="kaBarSp" style="width:0%;background:#6BE3A4;"></div></div>
+            </div>
+            <div class="ka-bar-row">
+              <div class="ka-bar-top"><span>Focus minutes goal (90m)</span><span id="kaBarFmV">0m/90m</span></div>
+              <div class="ka-bar"><div class="ka-bar-fill" id="kaBarFm" style="width:0%;background:#5B8DEF;"></div></div>
+            </div>
+          </div>
+
+          <!-- Time Reality -->
+          <div class="glass-card ka-card">
+            <div class="ka-eyebrow"><span>🕐</span><span class="ttl">Reality Check</span><span class="tag">ESTIMATE VS ACTUAL — KILLS TIME BLINDNESS</span></div>
+            <div id="kaReality"><div class="ka-empty">No sprints today yet. Every sprint you end trains your time sense.</div></div>
+          </div>
+
+          <!-- Weekly Mirror -->
+          <div class="glass-card ka-card">
+            <div class="ka-eyebrow"><span>🪞</span><span class="ttl">Weekly Mirror</span><span class="tag">FIRE-FIGHTING VS MEANINGFUL</span></div>
+            <div class="ka-week" id="kaWeek"></div>
+            <div class="ka-insight" id="kaWeekInsight"></div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script type="module">
@@ -1857,6 +2091,7 @@
 
         try {
           if (mode === 'plan') { planPopulateTimes(); renderPlan(); }
+          else if (mode === 'kaizen') { renderKaizen(); }
           else { document.body.classList.remove('deep-active'); }
         } catch(e) { console.error("Error rendering view:", e); }
       }
@@ -4117,7 +4352,7 @@
           }
 
           if (changed) {
-            renderPersonal(); renderCore(); renderCorporate(); renderReprogram(); planPopulateTimes(); renderPlan(); updateRing();
+            renderPersonal(); renderCore(); renderCorporate(); renderReprogram(); planPopulateTimes(); renderPlan(); updateRing(); renderKaizen();
           }
         } else if (!cloudSyncActive) {
           // Cloud is empty, push all local state to cloud
@@ -4137,6 +4372,303 @@
         }
         cloudSyncActive = true;
       });
+
+      // ═══════════ KAIZEN OS ENGINE ═══════════
+      let kaSprint = null;
+      let kaSprintInt = null;
+      let kaEstMin = 30;
+      let kaType = 'focus';
+
+      function kaImg(k, def) { return load('kaizen:' + k, def); }
+      function kaSave(k, v) { save('kaizen:' + k, v); }
+
+      function renderKaizen() {
+        const today = getToday();
+        const mode = kaImg('mode', 'simple');
+        document.getElementById('kaModeSimple').classList.toggle('active', mode !== 'advanced');
+        document.getElementById('kaModeAdvanced').classList.toggle('active', mode === 'advanced');
+        document.getElementById('kaSimpleWrap').style.display = mode === 'advanced' ? 'none' : '';
+        document.getElementById('kaAdvancedWrap').style.display = mode === 'advanced' ? '' : 'none';
+
+        // Stats
+        const dumps = kaImg('brain:' + today, []);
+        const sessions = kaImg('sessions:' + today, []);
+        const hi = kaImg('highlight:' + today, '');
+        document.getElementById('kaStatDumps').textContent = dumps.length;
+        document.getElementById('kaStatHighlight').textContent = hi ? hi.toUpperCase().slice(0, 16) : '—';
+        document.getElementById('kaStatSprints').textContent = sessions.length;
+        const focusMin = sessions.filter(s => s.type !== 'fire').reduce((s,x) => s + x.actualMin, 0);
+        const fireMin = sessions.filter(s => s.type === 'fire').reduce((s,x) => s + x.actualMin, 0);
+        document.getElementById('kaStatFocusMin').textContent = focusMin;
+        document.getElementById('kaStatFireMin').textContent = fireMin;
+
+        // Brain dump list
+        renderKaDumps(dumps);
+
+        // Highlight area
+        renderKaHighlight(hi);
+
+        // Reality log
+        renderKaReality(sessions);
+
+        // Weekly mirror
+        renderKaWeek();
+
+        // Momentum bars
+        document.getElementById('kaBarDumpsV').textContent = dumps.length + '/5';
+        document.getElementById('kaBarDumps').style.width = Math.min(100, dumps.length/5*100) + '%';
+        document.getElementById('kaBarHlV').textContent = hi ? '1/1' : '0/1';
+        document.getElementById('kaBarHl').style.width = hi ? '100%' : '0%';
+        document.getElementById('kaBarSpV').textContent = sessions.length;
+        document.getElementById('kaBarSp').style.width = Math.min(100, sessions.length/4*100) + '%';
+        document.getElementById('kaBarFmV').textContent = focusMin + 'm/90m';
+        document.getElementById('kaBarFm').style.width = Math.min(100, focusMin/90*100) + '%';
+      }
+
+      function renderKaDumps(dumps) {
+        const list = document.getElementById('kaDumpList');
+        list.innerHTML = dumps.length === 0
+          ? '<div class="ka-line" style="opacity:0.6;">Nothing here. Whenever your head is loud, dump it — one line, zero judgement.</div>'
+          : dumps.map((t, i) => `
+              <div class="ka-line">
+                <span>${esc(t)}</span>
+                <button class="del ka-dump-del" data-i="${i}" style="width:16px;height:16px;border-radius:4px;border:none;background:rgba(0,0,0,0.3);color:rgba(255,255,255,0.35);font-size:9px;cursor:pointer;margin-left:auto;">✕</button>
+              </div>`).join('');
+        list.querySelectorAll('.ka-dump-del').forEach(b => b.onclick = () => {
+          const today = getToday();
+          const d2 = kaImg('brain:' + today, []);
+          d2.splice(parseInt(b.dataset.i), 1);
+          kaSave('brain:' + today, d2);
+          renderKaizen();
+        });
+      }
+
+      function renderKaHighlight() {
+        const today = getToday();
+        const hi = kaImg('highlight:' + today, '');
+        const area = document.getElementById('kaHighlightArea');
+        const blocks = load('plan:' + today, [])
+          .filter(b => b.cat === 'Deep Work' || b.cat === 'Work' || b.cat === 'Learning')
+          .sort((a,b) => a.start - b.start)
+          .slice(0, 6);
+
+        if (hi) {
+          area.innerHTML = `
+            <div>🎯 Daily Highlight — LOCKED</div>
+            <div class="ka-hl-title">"${esc(hi)}"</div>
+            <button class="ka-btn" id="kaHlClear" style="margin-top:4px;">✕ Change highlight</button>`;
+          document.getElementById('kaHlClear').onclick = () => {
+            kaSave('highlight:' + today, '');
+            renderKaizen();
+          };
+        } else {
+          const chips = blocks.map(b => `<button class="ka-chip" data-label="${esc(b.label)}">${esc(b.label)} · ${planFmt(b.start)}</button>`).join('');
+          area.innerHTML = `
+            <div class="ka-hl-title" style="font-size:11px;color:var(--text-secondary);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px;">
+              ${blocks.length ? 'From today\'s plan:' : 'No plan blocks today.'}
+            </div>
+            ${chips || ''}
+            <div class="add-row" style="margin-top:10px;">
+              <input type="text" id="kaHlCustom" class="input-field" placeholder="…or type your own highlight">
+              <button class="btn" id="kaHlSet">🎯 Set</button>
+            </div>`;
+          area.querySelectorAll('.ka-chip').forEach(ch => ch.onclick = () => setKaHighlight(ch.dataset.label));
+          document.getElementById('kaHlSet').onclick = () => {
+            const v = document.getElementById('kaHlCustom').value.trim();
+            if (v) setKaHighlight(v);
+          };
+        }
+      }
+
+      function setKaHighlight(v) {
+        kaSave('highlight:' + getToday(), v);
+        renderKaizen();
+      }
+
+      function renderKaReality(sessions) {
+        const el = document.getElementById('kaReality');
+        if (sessions.length === 0) {
+          el.innerHTML = '<div class="ka-empty">No sprints today yet. Every sprint you end trains your time sense.</div>';
+          return;
+        }
+        el.innerHTML = sessions.slice().reverse().slice(0, 12).map(s => {
+          const d = s.actualMin - s.est;
+          const cls = d > Math.max(6, s.est*0.2) ? 'over' : d < -Math.max(6, s.est*0.2) ? 'under' : 'on';
+          const lbl = cls === 'over' ? '+' + d + 'm' : cls === 'under' ? (d + 'm') : 'on target';
+          return `<div class="ka-logline">
+            <span>${esc(s.label || 'Sprint')}</span>
+            <span style="opacity:0.5;font-size:9px;">est ${s.est}m</span>
+            <span class="diff ${cls}">${s.actualMin}m · ${lbl}</span>
+          </div>`;
+        }).join('');
+      }
+
+      function renderKaWeek() {
+        const el = document.getElementById('kaWeek');
+        const days = [];
+        for (let i = 6; i >= 0; i--) {
+          const d = new Date();
+          d.setDate(d.getDate() - i);
+          const ds = getDateStr(d);
+          const sessions = kaImg('sessions:' + ds, []);
+          const fm = sessions.filter(a => a.type !== 'fire').reduce((s,a) => s + a.actualMin, 0);
+          const ff = sessions.filter(a => a.type === 'fire').reduce((s,a) => s + a.actualMin, 0);
+          days.push({ ds, fm, ff, n: sessions.length });
+        }
+        const maxM = Math.max(60, ...days.map(d => d.fm + d.ff));
+        el.innerHTML = days.map(d => `
+          <div class="ka-week-day" title="${d.ds}">
+            <div class="wd">${new Date(d.ds+'T12:00').toLocaleDateString('en-US',{weekday:'short'})}</div>
+            <div class="wf" style="color:${d.n ? '#C8F544' : 'var(--text-tertiary)'}">${d.fm + d.ff}m</div>
+            <div class="wk-bar"><div class="wk-fill" style="width:${Math.max(4, (d.fm+d.ff)/maxM*100)}%;background:linear-gradient(90deg,#C8F544 0%,#C8F544 ${d.ff ? d.fm/(d.fm+d.ff)*100 : 100}%,#FF6B6B ${d.ff ? d.fm/(d.fm+d.ff)*100 : 100}%,#FF6B6B 100%);"></div></div>
+            <div class="wd" style="margin-top:4px;color:${d.fm > d.ff ? '#6BE3A4' : '#FF6B6B'}">${d.fm}m ✦ · ${d.ff}m 🧯</div>
+          </div>`).join('');
+
+        // Insight
+        const totalFM = days.reduce((s,d) => s + d.fm, 0);
+        const totalFF = days.reduce((s,d) => s + d.ff, 0);
+        const ins = document.getElementById('kaWeekInsight');
+        if (totalFM + totalFF === 0) {
+          ins.innerHTML = 'No sprints logged this week yet. Even one 15-minute sprint rewires your sense of time.';
+        } else {
+          const pct = Math.round(totalFM / (totalFM + totalFF) * 100);
+          ins.innerHTML = pct >= 70
+            ? `<b>${pct}% meaningful.</b> Your week was ~${totalFM}m of focused, meaningful work. This is what momentum feels like — keep protecting it.`
+            : pct >= 40
+            ? `<b>${pct}% meaningful.</b> ${totalFM}m meaningful vs ${totalFF}m fire-fighting. One small step: guard one 30m sprint at the start of tomorrow.`
+            : `<b>${pct}% meaningful.</b> Nothing to judge here — only to redirect. Pick one task tonight, name it as tomorrow's sprint, front-load it.`;
+        }
+      }
+
+      // Sprint timer
+      function kaTick() {
+        if (!kaSprint) return;
+        const el = document.getElementById('kaSprintDisplay');
+        const fill = document.getElementById('kaSprintFill');
+        const now = Date.now();
+        const elapsedMs = now - kaSprint.startTs - kaSprint.pausedMs;
+        const estMs = kaSprint.est * 60000;
+        const s = Math.floor(elapsedMs/1000);
+        const m = Math.floor(s/60), sec = s%60;
+        fill.style.width = Math.min(100, elapsedMs/estMs*100) + '%';
+        el.textContent = `${m}:${String(sec).padStart(2,'0')}`;
+        el.classList.toggle('running', kaSprint.running);
+        document.getElementById('kaSprintState').textContent = kaSprint.running ? (elapsedMs >= estMs ? 'OVER — GUILT-FREE, KEEP GOING IF ABLE' : 'RUNNING') : 'PAUSED';
+      }
+
+      function kStartSprint() {
+        const label = document.getElementById('kaSprintInput').value.trim() || 'Untitled sprint';
+        kaSprint = { label, est: kaEstMin, type: kaType, running: true, startTs: Date.now(), pausedMs: 0, endElapsed: 0 };
+        document.getElementById('kaSprintStart').style.display = 'none';
+        document.getElementById('kaSprintPause').style.display = '';
+        document.getElementById('kaSprintStop').style.display = '';
+        document.getElementById('kaSprintState').textContent = 'RUNNING';
+        document.getElementById('kaSprintDisplay').classList.add('running');
+        document.getElementById('kaVerdict').classList.remove('show');
+        if (kaSprintInt) clearInterval(kaSprintInt);
+        kaSprintInt = setInterval(kaTick, 250);
+        kaTick();
+      }
+
+      function kaPauseSprint() {
+        if (!kaSprint) return;
+        if (kaSprint.running) {
+          kaSprint.pausedAt = Date.now();
+          kaSprint.running = false;
+          document.getElementById('kaSprintPause').textContent = '▶ Resume';
+        } else {
+          kaSprint.pausedMs += Date.now() - kaSprint.pausedAt;
+          kaSprint.running = true;
+          document.getElementById('kaSprintPause').textContent = '⏸ Pause';
+        }
+        kaTick();
+      }
+
+      function kaEndSprint() {
+        if (!kaSprint) return;
+        if (kaSprintInt) { clearInterval(kaSprintInt); kaSprintInt = null; }
+        const elapsedMs = Date.now() - kaSprint.startTs - kaSprint.pausedMs;
+        const actualMin = Math.max(1, Math.round(elapsedMs/60000));
+        const today = getToday();
+        const sessions = kaImg('sessions:' + today, []);
+        sessions.push({ id: genId(), label: kaSprint.label, est: kaSprint.est, actualMin, type: kaSprint.type, ts: Date.now() });
+        kaSave('sessions:' + today, sessions);
+
+        const d = actualMin - kaSprint.est;
+        const v = document.getElementById('kaVerdict');
+        if (kaSprint.type === 'fire') {
+          v.innerHTML = `<b>🧯 ${actualMin}m of fire-fighting.</b> Logged honestly. Rename tomorrow: what in front of it could be a focus session instead?`;
+        } else if (actualMin >= kaSprint.est) {
+          v.innerHTML = `<b>${actualMin}m sprint banked.</b> Estimated ${kaSprint.est}m. ${actualMin - kaSprint.est > 0 ? `That's ${actualMin - kaSprint.est}m more than your brain promised — good thing it ran anyway. Reality > estimate.` : 'Locked target. Your time sense is accurate.'}`;
+        } else {
+          v.innerHTML = `<b>${actualMin}m sprint.</b> Under your ${kaSprint.est}m estimate — finished before your brain said you could. Now you know: you're faster than you think.`;
+        }
+        v.classList.add('show');
+
+        kaSprint = null;
+        document.getElementById('kaSprintStart').style.display = '';
+        document.getElementById('kaSprintPause').style.display = 'none';
+        document.getElementById('kaSprintStop').style.display = 'none';
+        document.getElementById('kaSprintDisplay').textContent = '00:00';
+        document.getElementById('kaSprintDisplay').classList.remove('running');
+        document.getElementById('kaSprintFill').style.width = '0%';
+        document.getElementById('kaSprintState').textContent = 'DONE — LOGGED';
+        renderKaizen();
+      }
+
+      // Wire Kaizen UI
+      document.getElementById('kaDumpAdd').onclick = () => {
+        const inp = document.getElementById('kaDumpInput');
+        const v = inp.value.trim();
+        if (!v) return;
+        const today = getToday();
+        const dumps = kaImg('brain:' + today, []);
+        dumps.unshift(v);
+        kaSave('brain:' + today, dumps);
+        inp.value = '';
+        renderKaizen();
+      };
+      document.getElementById('kaDumpClear').onclick = () => {
+        if (!confirm('Clear all dumps for today?')) return;
+        kaSave('brain:' + getToday(), []);
+        renderKaizen();
+      };
+      document.querySelectorAll('#kaEstRow .ka-chip').forEach(ch => ch.onclick = () => {
+        kaEstMin = parseInt(ch.dataset.min);
+        document.querySelectorAll('#kaEstRow .ka-chip').forEach(c => c.classList.remove('active'));
+        ch.classList.add('active');
+      });
+      document.querySelectorAll('#kaTypeRow .ka-chip').forEach(ch => ch.onclick = () => {
+        kaType = ch.dataset.type;
+        document.querySelectorAll('#kaTypeRow .ka-chip').forEach(c => c.classList.remove('active'));
+        ch.classList.add('active');
+      });
+      document.getElementById('kaSprintStart').onclick = kaStartSprint;
+      document.getElementById('kaSprintPause').onclick = kaPauseSprint;
+      document.getElementById('kaSprintStop').onclick = kaEndSprint;
+
+      document.getElementById('kaModeSimple').onclick = () => { kaSave('mode', 'simple'); renderKaizen(); };
+      document.getElementById('kaModeAdvanced').onclick = () => { kaSave('mode', 'advanced'); renderKaizen(); };
+
+      // Chrome collapse
+      const cmBtn = document.getElementById('chromeMinBtn');
+      let chromeMin = load('chrome:min', false);
+      function applyChromeMin() {
+        document.body.classList.toggle('chrome-min', chromeMin);
+        cmBtn.textContent = chromeMin ? '⌃' : '⌄';
+      }
+      cmBtn.onclick = () => { chromeMin = !chromeMin; save('chrome:min', chromeMin); applyChromeMin(); };
+      applyChromeMin();
+      function updateChromeStrip() {
+        const d = new Date();
+        const h = d.getHours()%12||12, m = d.getMinutes();
+        document.getElementById('cmClock').textContent = `${h}:${String(m).padStart(2,'0')} ${d.getHours()>=12?'PM':'AM'}`;
+        const rem = 24*60 - (d.getHours()*60 + d.getMinutes());
+        document.getElementById('cmRemaining').textContent = `${Math.floor(rem/60)}h ${rem%60}m left`;
+        document.getElementById('cmMode').textContent = 'AETHELGARD · ' + currentMode.toUpperCase();
+      }
+      setInterval(updateChromeStrip, 30000);
+      updateChromeStrip();
   </script>
 </body>
 </html>
