@@ -109,8 +109,7 @@
     /* Day Ring Container */
     .day-ring-container { display: flex; justify-content: center; align-items: center; gap: 26px; margin-bottom: 32px; flex-wrap: wrap; position: relative; }
     .chrome-min-btn {
-      position: absolute; top: -10px; right: 2px;
-      width: 26px; height: 26px; border-radius: 8px; cursor: pointer;
+      width: 26px; height: 26px; border-radius: 8px; cursor: pointer; flex-shrink: 0;
       border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03);
       color: var(--text-tertiary); font-size: 11px; transition: all 0.2s;
       display: flex; align-items: center; justify-content: center;
@@ -1140,10 +1139,10 @@
           <div class="mode-pill" data-mode="ritual">RITUAL<span class="mode-pill-sub">✨ SEAL</span></div>
           <div class="mode-pill" data-mode="kaizen">KAIZEN<span class="mode-pill-sub">⚡ OS</span></div>
         </div>
+        <button class="chrome-min-btn" id="chromeMinBtn" title="Expand / collapse dashboard chrome"></button>
       </div>
 
       <div class="day-ring-container">
-        <button class="chrome-min-btn" id="chromeMinBtn" title="Collapse dashboard chrome"></button>
         <div class="day-ring-left">
           <svg viewBox="0 0 120 120" class="day-ring-svg">
             <circle cx="60" cy="60" r="52" class="day-ring-track"></circle>
@@ -2074,7 +2073,9 @@
         } else {
           localStorage.setItem(PREFIX + 'mode', JSON.stringify({ v: mode, t: 0 }));
         }
+        const chromeMin = document.body.classList.contains('chrome-min');
         document.body.className = `mode-${mode}`;
+        if (chromeMin) document.body.classList.add('chrome-min');
         document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
         const targetView = document.getElementById('view' + mode.charAt(0).toUpperCase() + mode.slice(1));
         if (targetView) targetView.classList.add('active');
@@ -4390,10 +4391,13 @@
         document.getElementById('kaSimpleWrap').style.display = mode === 'advanced' ? 'none' : '';
         document.getElementById('kaAdvancedWrap').style.display = mode === 'advanced' ? '' : 'none';
 
-        // Stats
-        const dumps = kaImg('brain:' + today, []);
-        const sessions = kaImg('sessions:' + today, []);
-        const hi = kaImg('highlight:' + today, '');
+        // Stats — defensive: data may come from cloud in any shape
+        let dumps = kaImg('brain:' + today, []);
+        if (!Array.isArray(dumps)) { dumps = []; kaSave('brain:' + today, dumps); }
+        let sessions = kaImg('sessions:' + today, []);
+        if (!Array.isArray(sessions)) { sessions = []; kaSave('sessions:' + today, sessions); }
+        let hi = kaImg('highlight:' + today, '');
+        if (hi && typeof hi !== 'string') { kaSave('highlight:' + today, ''); hi = ''; }
         document.getElementById('kaStatDumps').textContent = dumps.length;
         document.getElementById('kaStatHighlight').textContent = hi ? hi.toUpperCase().slice(0, 16) : '—';
         document.getElementById('kaStatSprints').textContent = sessions.length;
@@ -4556,7 +4560,7 @@
         document.getElementById('kaSprintState').textContent = kaSprint.running ? (elapsedMs >= estMs ? 'OVER — GUILT-FREE, KEEP GOING IF ABLE' : 'RUNNING') : 'PAUSED';
       }
 
-      function kStartSprint() {
+      function kaStartSprint() {
         const label = document.getElementById('kaSprintInput').value.trim() || 'Untitled sprint';
         kaSprint = { label, est: kaEstMin, type: kaType, running: true, startTs: Date.now(), pausedMs: 0, endElapsed: 0 };
         document.getElementById('kaSprintStart').style.display = 'none';
@@ -4650,9 +4654,9 @@
       document.getElementById('kaModeSimple').onclick = () => { kaSave('mode', 'simple'); renderKaizen(); };
       document.getElementById('kaModeAdvanced').onclick = () => { kaSave('mode', 'advanced'); renderKaizen(); };
 
-      // Chrome collapse
+      // Chrome collapse — collapsed by default for a clean dashboard
       const cmBtn = document.getElementById('chromeMinBtn');
-      let chromeMin = load('chrome:min', false);
+      let chromeMin = load('chrome:min', true);
       function applyChromeMin() {
         document.body.classList.toggle('chrome-min', chromeMin);
         cmBtn.textContent = chromeMin ? '⌃' : '⌄';
